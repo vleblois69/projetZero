@@ -24,5 +24,11 @@ public class AppTest
 	{
 		assertEquals(3,app.additionner(1,2));
 	}
+	
+	@Test
+	public void testAdditionFalse()
+	{
+		assertEquals(1,app.additionner(1,2));
+	}
     
 }
