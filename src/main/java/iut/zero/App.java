@@ -6,13 +6,13 @@ package iut.zero;
  */
 public class App 
 {
+	public int additionner(int premierChiffre, int deuxiemeChiffre)
+	{
+		return premierChiffre + deuxiemeChiffre;
+	}
+	
     public static void main( String[] args )
     {
         System.out.println( "Hello World!" );
-    }
-    
-    public static int addition(int premierChiffre, int secondChiffre)
-    {
-    	return premierChiffre + secondChiffre;
     }
 }
