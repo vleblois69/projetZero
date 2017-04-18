@@ -10,4 +10,9 @@ public class App
     {
         System.out.println( "Hello World!" );
     }
+    
+    public static int addition(int premierChiffre, int secondChiffre)
+    {
+    	return premierChiffre + secondChiffre;
+    }
 }
