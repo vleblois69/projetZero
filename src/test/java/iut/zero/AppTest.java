@@ -28,7 +28,7 @@ public class AppTest
 	@Test
 	public void testAdditionFalse()
 	{
-		assertEquals(1,app.additionner(1,2));
+		assertEquals(7,app.additionner(5,2));
 	}
     
 }
