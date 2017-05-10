@@ -11,6 +11,11 @@ public class App
 		return premierChiffre + deuxiemeChiffre;
 	}
 	
+	public int soustraire(int premierChiffre, int deuxiemeChiffre)
+	{
+		return premierChiffre - deuxiemeChiffre;
+	}
+	
     public static void main( String[] args )
     {
         System.out.println( "Hello World!" );

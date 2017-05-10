@@ -30,5 +30,11 @@ public class AppTest
 	{
 		assertEquals(7,app.additionner(5,2));
 	}
+	
+	@Test
+	public void testSoustraction()
+	{
+		assertEquals(2,app.soustraire(4,2));
+	}
     
 }
