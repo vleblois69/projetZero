@@ -4,8 +4,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.events.KeyAdapter;
@@ -35,14 +34,12 @@ public class App {
 	
 	int bordDroitDernierAlien;
 	int bordGauchePremierAlien = 130;
-	static Map<Label,Alien> listeAliens = new HashMap<Label,Alien>();
+	static List<Alien> listeAliens = new ArrayList<Alien>();
 	static boolean jeuEnCours = false;
 	static Joueur joueur;
 
-	public static void main(String[] args) {
-		
-		joueur = new Joueur();
-		
+	public static void main(String[] args) {		
+				
 		final Display display = Display.getDefault();
 		Shell shell = new Shell();
 		shell.setSize(732, 492);
@@ -81,16 +78,14 @@ public class App {
 		fd_compJeu.left = new FormAttachment(0);
 		compJeu.setLayoutData(fd_compJeu);
 		compJeu.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-		compJeu.setVisible(true);
+		compJeu.setVisible(true);		
 
 		final Button btnRetournerAuMenu = new Button(compJeu, SWT.NONE);
 		btnRetournerAuMenu.setBounds(275, 210, 178, 42);
 		btnRetournerAuMenu.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnRetournerAuMenu.setText("Retourner au menu");
-
-		final Label lblVaisseau = new Label(compJeu, SWT.NONE);		
-		lblVaisseau.setImage(
-				new Image(display, joueur.getLienImage()));		
+		
+		joueur = new Joueur(compJeu, display);
 
 		// Gestion des listeners
 
@@ -101,7 +96,7 @@ public class App {
 				compMenu.setVisible(false);
 				btnRetournerAuMenu.setVisible(false);
 				
-				lblVaisseau.setBounds(330, 380, 50, 50);
+				joueur.getLabel().setBounds(330, 380, 50, 50);
 				genererAliens(compJeu, display);				
 				
 				System.out.println("Thread principal : " + Thread.currentThread());
@@ -141,6 +136,7 @@ public class App {
 			public void keyPressed(KeyEvent keyPressed) {
 				if (jeuEnCours) 
 				{
+					Label lblVaisseau = joueur.getLabel();
 					final int x = lblVaisseau.getBounds().x;
 					final int y = lblVaisseau.getBounds().y;
 					int width = lblVaisseau.getBounds().width;
@@ -231,29 +227,26 @@ public class App {
 			positionAlien = 90; // La position du premier alien (pour chaque
 								// ligne)
 			for (int j = 0; j < NB_ALIENS_PAR_LIGNE; j++) {
-				Alien alien = new Alien();
-				Label lblAlien = new Label(compJeu, SWT.NONE);
+				Alien alien = new Alien(compJeu, display);
+				Label lblAlien = alien.getLabel();
 				lblAlien.setBounds(positionAlien, 50 + (i * 50) + 20, 50, 50);
 				positionAlien += 60;
-				lblAlien.setImage(
-						new Image(display, alien.getLienImage()));
-				listeAliens.put(lblAlien, alien);
+				listeAliens.add(alien);
 			}
 		}
 	}
 
 	public static boolean alienACettePosition(int x, int y) {
-		for (Label lblAlien : listeAliens.keySet()) 
+		for (Alien alien : listeAliens) 
 		{
+			Label lblAlien = alien.getLabel();
 			if ((x >= lblAlien.getLocation().x && x <= lblAlien.getLocation().x + 50)
 					&& y == lblAlien.getLocation().y) 
-			{
-				Alien alien = listeAliens.get(lblAlien);
+			{				
 				alien.retirerPV(1);
 				if (alien.getPv() <= 0)
 				{
-					listeAliens.remove(lblAlien);
-					lblAlien.dispose();
+					listeAliens.remove(alien);
 				}				
 				return true;
 			}

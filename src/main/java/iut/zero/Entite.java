@@ -1,9 +1,11 @@
 package iut.zero;
 
+import org.eclipse.swt.widgets.Label;
+
 public class Entite 
 {
-	private int pv;
-	private String lienImage;
+	protected int pv;
+	protected Label label;
 	
 	public int getPv() {
 		return pv;
@@ -11,12 +13,23 @@ public class Entite
 	public void setPv(int pv) {
 		this.pv = pv;
 	}
-	public String getLienImage() {
-		return lienImage;
+	public Label getLabel() {
+		return label;
 	}
-	public void setLienImage(String lienImage) {
-		this.lienImage = lienImage;
+	public void setLabel(Label label) {
+		this.label = label;
 	}
+	
+	public void retirerPV(int degats)
+	{
+		pv -= degats;
+		if (pv <= 0)
+		{
+			label.dispose();
+		}
+	}
+	
+	
 	
 	
 
