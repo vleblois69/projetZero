@@ -5,7 +5,7 @@ public class Joueur extends Entite
 	private int points;
 	
 	public Joueur() {
-		super.setLienImage("D:/Mes Documents/Cours Tests Unitaires/projetZero/src/images/vaisseau.png");
+		super.setLienImage("src/images/vaisseau.png");
 		super.setPv(3);
 		points = 0;
 	}
@@ -16,8 +16,6 @@ public class Joueur extends Entite
 
 	public void setPoints(int points) {
 		this.points = points;
-	}
-	
-	
+	}	
 
 }

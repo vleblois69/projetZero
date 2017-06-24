@@ -3,7 +3,7 @@ package iut.zero;
 public class Alien extends Entite
 {
 	public Alien() {
-		super.setLienImage("D:/Mes Documents/Cours Tests Unitaires/projetZero/src/images/alien.png");
+		super.setLienImage("src/images/alien.png");
 		super.setPv(1);
 	}
 	

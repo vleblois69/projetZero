@@ -104,16 +104,19 @@ public class App {
 				lblVaisseau.setBounds(330, 380, 50, 50);
 				genererAliens(compJeu, display);				
 				
+				System.out.println("Thread principal : " + Thread.currentThread());
 				jeuEnCours = true;
 				/*Display.getCurrent().asyncExec(new Runnable() {
 					@Override
 					public void run() {
+						System.out.println("Thread async : " + Thread.currentThread());
 						// Deplacement des aliens
 						while (jeuEnCours) {
 							Display.getCurrent().timerExec(10, new Runnable() {
 								@Override
 								public void run() {
-									for (Label lblAlien : listeAliens) {
+									System.out.println("Thread timer : " + Thread.currentThread());
+									for (Label lblAlien : listeAliens.keySet()) {
 										lblAlien.setLocation(lblAlien.getBounds().x + 10, lblAlien.getBounds().y);
 									}
 								}
@@ -179,13 +182,13 @@ public class App {
 										{
 											lblTir.redraw();
 											compJeu.update();
-											try 
+											/*try 
 											{
 												Thread.sleep(2);
 											} catch (InterruptedException e) 
 											{
 												e.printStackTrace();
-											}
+											}*/
 										}
 									}
 									lblTir.dispose();
