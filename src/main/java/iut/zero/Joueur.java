@@ -10,6 +10,7 @@ public class Joueur extends Entite
 {
 	public Joueur(Composite composite, Display display) {
 		pv = 3;
+		points = 0;
 		label = new Label(composite, SWT.NONE);
 		label.setImage(new Image(display, "src/images/vaisseau.png"));
 	}
