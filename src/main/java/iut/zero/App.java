@@ -6,8 +6,6 @@ import org.eclipse.swt.widgets.Label;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -46,6 +44,14 @@ public class App {
 	static boolean bordAtteint = false;
 	static boolean descendu = false;
 	
+	// Composants
+	static Display display;
+	static Shell shell;
+	static Composite compMenu;
+	static Composite compJeu;
+	static Label lblTitre;
+	static Button btnStart;
+	static Button btnRetournerAuMenu;
 	static Label lblScore;
 
 	// Variables du tir
@@ -54,13 +60,28 @@ public class App {
 
 	public static void main(String[] args) {
 
-		final Display display = Display.getDefault();
-		Shell shell = new Shell();
+		initialisation();
+		generationListeners();
+
+		shell.open();
+		shell.layout();
+		shell.pack();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+	}
+	
+	public static void initialisation()
+	{
+		display = Display.getDefault();
+		shell = new Shell();
 		shell.setSize(732, 492);
 		shell.setText("Space Invaders");
 		shell.setLayout(new FormLayout());
 
-		final Composite compMenu = new Composite(shell, SWT.BORDER);
+		compMenu = new Composite(shell, SWT.BORDER);
 		FormData fd_compMenu = new FormData();
 		fd_compMenu.bottom = new FormAttachment(0, 492);
 		fd_compMenu.right = new FormAttachment(0, 732);
@@ -69,21 +90,21 @@ public class App {
 		compMenu.setLayoutData(fd_compMenu);
 		compMenu.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
 
-		Label lblTitre = new Label(compMenu, SWT.NONE);
+		lblTitre = new Label(compMenu, SWT.NONE);
 		lblTitre.setForeground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
 		lblTitre.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
 		lblTitre.setFont(SWTResourceManager.getFont("Segoe UI", 27, SWT.NORMAL));
 		lblTitre.setBounds(199, 68, 307, 67);
 		lblTitre.setText("Space Invaders");
 
-		Button btnStart = new Button(compMenu, SWT.CENTER);
+		btnStart = new Button(compMenu, SWT.CENTER);
 		btnStart.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
 		btnStart.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnStart.setBounds(284, 226, 117, 43);
 		btnStart.setText("Start");
 		centrerSurEcran(display, shell);
 
-		final Composite compJeu = new Composite(shell, SWT.BORDER);
+		compJeu = new Composite(shell, SWT.BORDER);
 		compJeu.setLayout(null);
 		FormData fd_compJeu = new FormData();
 		fd_compJeu.bottom = new FormAttachment(0, 492);
@@ -94,7 +115,7 @@ public class App {
 		compJeu.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
 		compJeu.setVisible(true);
 
-		final Button btnRetournerAuMenu = new Button(compJeu, SWT.NONE);
+		btnRetournerAuMenu = new Button(compJeu, SWT.NONE);
 		btnRetournerAuMenu.setBounds(275, 210, 178, 42);
 		btnRetournerAuMenu.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnRetournerAuMenu.setText("Retourner au menu");
@@ -106,9 +127,36 @@ public class App {
 		lblScore.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblScore.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
 		lblScore.setBounds(5,0,104,21);
+	}
 
-		// Gestion des listeners
+	// Centre la fenetre au milieu de l'écran
+	public static void centrerSurEcran(Display display, Shell shell) {
+		Rectangle rect = display.getClientArea();
+		Point size = shell.getSize();
+		int x = (rect.width - size.x) / 2;
+		int y = (rect.height - size.y) / 2;
+		shell.setLocation(new Point(x, y));
+	}
 
+	public static void genererAliens(Composite compJeu, Display display) {
+		int positionAlien;
+		for (int i = 0; i < NB_LIGNES; i++) {
+			positionAlien = 90; // La position du premier alien (pour chaque
+								// ligne)
+			for (int j = 0; j < NB_ALIENS_PAR_LIGNE; j++) {
+				Alien alien = new Alien(compJeu, display);
+				Label lblAlien = alien.getLabel();
+				lblAlien.setBounds(positionAlien, 50 + (i * 50) + 20, 50, 50);
+				positionAlien += 50 + ECART_ENTRE_ALIENS; //50 étant la largeur de l'alien
+				listeAliens.add(alien);
+			}
+		}
+		bordDroitAlienLePlusADroite = 90 + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
+		bordGaucheAlienLePlusAGauche = 90;
+	}
+
+	public static void generationListeners()
+	{
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -116,7 +164,7 @@ public class App {
 				compMenu.setVisible(false);
 				btnRetournerAuMenu.setVisible(false);
 
-				joueur.getLabel().setBounds(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU, 50, 50);
+				joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
 				genererAliens(compJeu, display);
 				lblScore.setText("Score : " + joueur.getPoints());
 
@@ -128,14 +176,14 @@ public class App {
 					public void run() {
 
 						if (((bordDroitAlienLePlusADroite >= compJeu.getSize().x)
-								|| (bordGaucheAlienLePlusAGauche <= 0)) && !bordAtteint && !descendu) {
-							mouvement *= -1;
+								|| (bordGaucheAlienLePlusAGauche + mouvement < 0)) && !bordAtteint && !descendu) {	
 							bordAtteint = true;
 							if (bordDroitAlienLePlusADroite >= compJeu.getSize().x) {
 								bordGaucheAlienLePlusAGauche = bordDroitAlienLePlusADroite - (NB_ALIENS_PAR_LIGNE * 50) - (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
 							} else {
 								bordDroitAlienLePlusADroite = bordGaucheAlienLePlusAGauche + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
 							}
+							mouvement *= -1;
 
 						}
 						for (Alien alien : listeAliens) {
@@ -155,8 +203,8 @@ public class App {
 							}
 						}
 						if (!bordAtteint || descendu) {
-							bordDroitAlienLePlusADroite += mouvement;
-							bordGaucheAlienLePlusAGauche += mouvement;
+							bordDroitAlienLePlusADroite += mouvement;							
+							bordGaucheAlienLePlusAGauche += mouvement;							
 						}
 						if (bordAtteint && !descendu) {
 							descendu = true;
@@ -190,18 +238,11 @@ public class App {
 				if (jeuEnCours) {
 					Label lblVaisseau = joueur.getLabel();
 					final int x = lblVaisseau.getBounds().x;
-					final int y = lblVaisseau.getBounds().y;
-					int width = lblVaisseau.getBounds().width;
-					int bordDroitVaisseau = x + width;
-					int bordGaucheVaisseau = x;
+					final int y = lblVaisseau.getBounds().y;					
 					if (keyPressed.keyCode == SWT.ARROW_RIGHT) {
-						if (!(bordDroitVaisseau + 15 > compJeu.getSize().x)) {
-							lblVaisseau.setLocation(x + 15, y);
-						}
+						joueur.deplacerVaisseau(15);
 					} else if (keyPressed.keyCode == SWT.ARROW_LEFT) {
-						if (!(bordGaucheVaisseau - 15 < 0)) {
-							lblVaisseau.setLocation(x - 15, y);
-						}
+						joueur.deplacerVaisseau(-15);
 					} else {
 						if (keyPressed.keyCode == SWT.SPACE) {
 							if (!tirEnCours)
@@ -245,45 +286,11 @@ public class App {
 						}
 					}
 				}
-			}// vraie fin fonction
+			}
 		});
-
-		shell.open();
-		shell.layout();
-		shell.pack();
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
 	}
-
-	// Centre la fenetre au milieu de l'écran
-	public static void centrerSurEcran(Display display, Shell shell) {
-		Rectangle rect = display.getClientArea();
-		Point size = shell.getSize();
-		int x = (rect.width - size.x) / 2;
-		int y = (rect.height - size.y) / 2;
-		shell.setLocation(new Point(x, y));
-	}
-
-	public static void genererAliens(Composite compJeu, Display display) {
-		int positionAlien;
-		for (int i = 0; i < NB_LIGNES; i++) {
-			positionAlien = 90; // La position du premier alien (pour chaque
-								// ligne)
-			for (int j = 0; j < NB_ALIENS_PAR_LIGNE; j++) {
-				Alien alien = new Alien(compJeu, display);
-				Label lblAlien = alien.getLabel();
-				lblAlien.setBounds(positionAlien, 50 + (i * 50) + 20, 50, 50);
-				positionAlien += 50 + ECART_ENTRE_ALIENS; //50 étant la largeur de l'alien
-				listeAliens.add(alien);
-			}
-		}
-		bordDroitAlienLePlusADroite = 90 + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
-		bordGaucheAlienLePlusAGauche = 90;
-	}
-
+	
+	
 	public static boolean alienACettePosition(int x, int y) {
 		for (Alien alien : listeAliens) {
 			Label lblAlien = alien.getLabel();

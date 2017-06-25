@@ -12,6 +12,7 @@ public class Alien extends Entite
 		pv = 1;
 		label = new Label(composite, SWT.NONE);
 		label.setImage(new Image(display, "src/images/alien.png"));
+		label.setSize(50,50);
 	}
 
 }
