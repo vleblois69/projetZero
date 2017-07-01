@@ -45,7 +45,7 @@ public class App {
 	static int bordGaucheAlienLePlusAGauche;
 	static boolean bordAtteint = false;
 	static boolean descendu = false;
-	
+
 	// Composants
 	static Display display;
 	static Shell shell;
@@ -76,9 +76,8 @@ public class App {
 			}
 		}
 	}
-	
-	public static void initialisation()
-	{
+
+	public static void initialisation() {
 		display = Display.getDefault();
 		shell = new Shell();
 		shell.setSize(732, 492);
@@ -101,7 +100,7 @@ public class App {
 		lblTitre.setBounds(199, 68, 307, 67);
 		lblTitre.setText("Space Invaders");
 
-		btnStart = new Button(compMenu, SWT.CENTER);		
+		btnStart = new Button(compMenu, SWT.CENTER);
 		btnStart.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
 		btnStart.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnStart.setBounds(284, 226, 117, 43);
@@ -124,12 +123,12 @@ public class App {
 		btnRetournerAuMenu.setText("Retourner au menu");
 
 		joueur = new Joueur(compJeu, display);
-		
+
 		lblScore = new Label(compJeu, SWT.NONE);
 		lblScore.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
 		lblScore.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblScore.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
-		lblScore.setBounds(5,0,104,21);
+		lblScore.setBounds(5, 0, 104, 21);
 	}
 
 	// Centre la fenetre au milieu de l'écran
@@ -150,16 +149,16 @@ public class App {
 				Alien alien = new Alien(compJeu, display);
 				Label lblAlien = alien.getLabel();
 				lblAlien.setBounds(positionAlien, 50 + (i * 50) + 20, 50, 50);
-				positionAlien += 50 + ECART_ENTRE_ALIENS; //50 étant la largeur de l'alien
+				positionAlien += 50 + ECART_ENTRE_ALIENS; // 50 étant la largeur
+															// de l'alien
 				listeAliens.add(alien);
 			}
 		}
-		bordDroitAlienLePlusADroite = 90 + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
+		bordDroitAlienLePlusADroite = 90 + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE) * ECART_ENTRE_ALIENS;
 		bordGaucheAlienLePlusAGauche = 90;
 	}
 
-	public static void generationListeners()
-	{
+	public static void generationListeners() {
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -179,15 +178,12 @@ public class App {
 					@Override
 					public void run() {
 						deplacementAliens();
-						if (jeuEnCours)
-						{
-							Display.getCurrent().timerExec(200, this);							
-						}
-						else
-						{
+						if (jeuEnCours) {
+							Display.getCurrent().timerExec(200, this);
+						} else {
 							Display.getCurrent().timerExec(-1, this);
 						}
-						
+
 					}
 				});
 			}
@@ -209,25 +205,38 @@ public class App {
 
 			@Override
 			public void keyPressed(KeyEvent keyPressed) {
-				if (jeuEnCours) {					
+				if (jeuEnCours) {
 					if (keyPressed.keyCode == SWT.ARROW_RIGHT) {
 						deplacerVaisseau(15);
 					} else if (keyPressed.keyCode == SWT.ARROW_LEFT) {
 						deplacerVaisseau(-15);
 					} else {
 						if (keyPressed.keyCode == SWT.SPACE) {
-							if (!tirEnCours)
-							{
-								tirJoueur();
-							}							
+							if (!tirEnCours) {
+								Display.getCurrent().asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										final Label lblTir = initialiserTirJoueur();
+										Display.getCurrent().timerExec(1, new Runnable() {
+											@Override
+											public void run() {
+												tirJoueur(lblTir);
+												if (tirEnCours) {
+													Display.getCurrent().timerExec(1, this);
+												}
+											}
+										});
+									}
+								});
+
+							}
 						}
 					}
 				}
 			}
 		});
 	}
-	
-	
+
 	public static boolean alienACettePosition(int x, int y) {
 		for (Alien alien : listeAliens) {
 			Label lblAlien = alien.getLabel();
@@ -235,8 +244,7 @@ public class App {
 			int yAlien = lblAlien.getLocation().y;
 			int widthAlien = lblAlien.getSize().x;
 			int heightAlien = lblAlien.getSize().y;
-			if ((x >= xAlien && x <= xAlien + widthAlien)
-					&& (y <= yAlien && y >= yAlien - heightAlien)) {
+			if ((x >= xAlien && x <= xAlien + widthAlien) && (y <= yAlien && y >= yAlien - heightAlien)) {
 				alien.retirerPV(1);
 				if (alien.getPv() <= 0) {
 					joueur.setPoints(joueur.getPoints() + 1);
@@ -248,53 +256,49 @@ public class App {
 		}
 		return false;
 	}
-	
+
 	public static boolean joueurACettePosition(int x, int y) {
 		Label lblVaisseau = joueur.getLabel();
 		int xVaisseau = lblVaisseau.getLocation().x;
 		int yVaisseau = lblVaisseau.getLocation().y;
 		int widthVaisseau = lblVaisseau.getSize().x;
 		int heightVaisseau = lblVaisseau.getSize().y;
-		if ((x >= xVaisseau && x <= xVaisseau + widthVaisseau)
-				&& (y <= yVaisseau && y >= yVaisseau - heightVaisseau))
-		{
+		if ((x >= xVaisseau && x <= xVaisseau + widthVaisseau) && (y <= yVaisseau && y >= yVaisseau - heightVaisseau)) {
 			lblVaisseau.setVisible(false);
 			lblVaisseau.setVisible(true);
-			joueur.retirerPV(1);			
+			joueur.retirerPV(1);
 			return true;
 		}
 		return false;
 	}
-	
-	public static void deplacerVaisseau(int mouvement)
-	{
+
+	public static void deplacerVaisseau(int mouvement) {
 		Label lblVaisseau = joueur.getLabel();
 		int bordDroitVaisseau = lblVaisseau.getLocation().x + lblVaisseau.getSize().x;
-		if ((mouvement > 0 && !(bordDroitVaisseau + mouvement > compJeu.getSize().x)) 
-				|| (mouvement < 0 && !(lblVaisseau.getLocation().x + mouvement < 0)))
-		{
+		if ((mouvement > 0 && !(bordDroitVaisseau + mouvement > compJeu.getSize().x))
+				|| (mouvement < 0 && !(lblVaisseau.getLocation().x + mouvement < 0))) {
 			lblVaisseau.setLocation(lblVaisseau.getLocation().x + mouvement, lblVaisseau.getLocation().y);
-		}		
+		}
 	}
-	
-	public static void deplacementAliens()
-	{
-		if (((bordDroitAlienLePlusADroite >= compJeu.getSize().x)
-				|| (bordGaucheAlienLePlusAGauche + mouvement < 0)) && !bordAtteint && !descendu) {	
+
+	public static void deplacementAliens() {
+		if (((bordDroitAlienLePlusADroite >= compJeu.getSize().x) || (bordGaucheAlienLePlusAGauche + mouvement < 0))
+				&& !bordAtteint && !descendu) {
 			bordAtteint = true;
 			if (bordDroitAlienLePlusADroite >= compJeu.getSize().x) {
-				bordGaucheAlienLePlusAGauche = bordDroitAlienLePlusADroite - (NB_ALIENS_PAR_LIGNE * 50) - (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
+				bordGaucheAlienLePlusAGauche = bordDroitAlienLePlusADroite - (NB_ALIENS_PAR_LIGNE * 50)
+						- (NB_ALIENS_PAR_LIGNE) * ECART_ENTRE_ALIENS;
 			} else {
-				bordDroitAlienLePlusADroite = bordGaucheAlienLePlusAGauche + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
+				bordDroitAlienLePlusADroite = bordGaucheAlienLePlusAGauche + (NB_ALIENS_PAR_LIGNE * 50)
+						+ (NB_ALIENS_PAR_LIGNE) * ECART_ENTRE_ALIENS;
 			}
 			mouvement *= -1;
 		}
 		deplacerAliens();
-		if (jeuEnCours)
-		{
+		if (jeuEnCours) {
 			if (!bordAtteint || descendu) {
-				bordDroitAlienLePlusADroite += mouvement;							
-				bordGaucheAlienLePlusAGauche += mouvement;							
+				bordDroitAlienLePlusADroite += mouvement;
+				bordGaucheAlienLePlusAGauche += mouvement;
 			}
 			if (bordAtteint && !descendu) {
 				descendu = true;
@@ -302,14 +306,15 @@ public class App {
 				bordAtteint = false;
 			} else if (!bordAtteint && descendu) {
 				descendu = false;
-			}			
+			}
 		}
 	}
-	
-	public static void deplacerAliens()
-	{
+
+	public static void deplacerAliens() {
 		for (Alien alien : listeAliens) {
-			if (jeuEnCours) //Si le jeu n'est plus en cours, donc qu'un alien a atteint le joueur, on ne déplace pas les aliens restants
+			if (jeuEnCours) // Si le jeu n'est plus en cours, donc qu'un alien a
+							// atteint le joueur, on ne déplace pas les aliens
+							// restants
 			{
 				Label lblAlien = alien.getLabel();
 				if (!bordAtteint || descendu) {
@@ -320,68 +325,57 @@ public class App {
 				if (lblAlien.getLocation().y >= (Y_DEBUT_VAISSEAU - 50)) {
 					finDeLaPartie();
 				}
-			}			
+			}
 		}
 	}
-	
-	public static void finDeLaPartie()
-	{
+
+	public static void finDeLaPartie() {
 		jeuEnCours = false;
 		btnRetournerAuMenu.setVisible(true);
 	}
-	
-	public static void tirJoueur()
-	{
 
-		final Label lblVaisseau = joueur.getLabel();
-		final int x = lblVaisseau.getBounds().x;
-		final int y = lblVaisseau.getBounds().y;		
-		Display.getCurrent().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				final Label lblTir = new Label(compJeu, SWT.NONE);
-				tirEnCours = true;
-				lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
-				lblTir.setBounds(x + lblVaisseau.getSize().x/2, y - (lblVaisseau.getSize().y + 1), 5, 30);
-				compJeu.update();
-				xTir = lblTir.getBounds().x;
-				yTir = lblTir.getBounds().y;
-				Display.getCurrent().timerExec(1, new Runnable() {
-					@Override
-					public void run() {
-						yTir -= 8;
-						lblTir.setLocation(xTir, yTir);
-						if (alienACettePosition(xTir, yTir) || joueurACettePosition(xTir, yTir)) {
-							entiteTouchee = true;
-						} else {
-							lblTir.redraw();
-							compJeu.update();
-						}
-						if (yTir - 8 > 0 && !entiteTouchee) {
-							Display.getCurrent().timerExec(1, this);														
-						} 
-						else 
-						{
-							if (!deuxiemePassage && !entiteTouchee)
-							{
-								yTir = compJeu.getSize().y + 8;
-								deuxiemePassage = true;
-								Display.getCurrent().timerExec(1, this);
-							}
-							else
-							{
-								lblTir.dispose();
-								tirEnCours = false;
-								deuxiemePassage = false;
-								entiteTouchee = false;
-								if (listeAliens.isEmpty() || joueur.getPv() == 0) {
-									finDeLaPartie();
-								}
-							}							
-						}
-					}
-				});
+	/**
+	 * Initialise le tir et renvoie le label correspondant
+	 * 
+	 * @return Le label du tir initialisé
+	 */
+	public static Label initialiserTirJoueur() {
+		Label lblVaisseau = joueur.getLabel();
+		int x = lblVaisseau.getBounds().x;
+		int y = lblVaisseau.getBounds().y;
+		Label lblTir = new Label(compJeu, SWT.NONE);
+		tirEnCours = true;
+		lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+		lblTir.setBounds(x + lblVaisseau.getSize().x / 2, y - (lblVaisseau.getSize().y + 1), 5, 30);
+		compJeu.update();
+		xTir = lblTir.getBounds().x;
+		yTir = lblTir.getBounds().y;
+		return lblTir;
+	}
+
+	public static void tirJoueur(Label lblTir) {
+		yTir -= 8;
+		lblTir.setLocation(xTir, yTir);
+		if (alienACettePosition(xTir, yTir) || joueurACettePosition(xTir, yTir)) {
+			entiteTouchee = true;
+		} else {
+			lblTir.redraw();
+			compJeu.update();
+		}
+		if (yTir - 8 < 0 || entiteTouchee)
+		{
+			if (!deuxiemePassage && !entiteTouchee) {
+				yTir = compJeu.getSize().y + 8;
+				deuxiemePassage = true;
+			} else {
+				lblTir.dispose();
+				tirEnCours = false;
+				deuxiemePassage = false;
+				entiteTouchee = false;
+				if (listeAliens.isEmpty() || joueur.getPv() == 0) {
+					finDeLaPartie();
+				}
 			}
-		});
+		}		
 	}
 }

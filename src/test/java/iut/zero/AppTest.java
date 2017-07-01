@@ -7,6 +7,7 @@ import java.awt.Robot;
 import java.awt.event.InputEvent;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -136,6 +137,24 @@ public class AppTest
 		int ancienY = premierAlien.getLabel().getLocation().y;
 		App.deplacementAliens();
 		assertEquals(ancienY + 10, premierAlien.getLabel().getLocation().y);
+	}
+	
+	@Test
+	public void enleverDeLaVieAuJoueurSiToucheParPropreTir()
+	{
+		App.initialisation();
+		App.generationListeners();
+		App.shell.layout();
+		App.shell.pack();
+		Joueur joueur = App.joueur;
+		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
+		int ancienPV = joueur.getPv();
+		Label lblTir = App.initialiserTirJoueur();
+		while (App.tirEnCours)
+		{
+			App.tirJoueur(lblTir);
+		}		
+		assertEquals(ancienPV - 1, joueur.getPv());
 	}
 	
     
