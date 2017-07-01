@@ -267,7 +267,7 @@ public class App {
 		});
 	}
 
-	public static boolean alienACettePosition(int x, int y) {
+	public static boolean alienACettePosition(int x, int y, Label lblTir) {
 		for (Alien alien : listeAliens) {
 			Label lblAlien = alien.getLabel();
 			int xAlien = lblAlien.getLocation().x;
@@ -277,8 +277,11 @@ public class App {
 			if ((x >= xAlien && x <= xAlien + widthAlien) && (y <= yAlien && y >= yAlien - heightAlien)) {
 				alien.retirerPV(1);
 				if (alien.getPv() <= 0) {
-					joueur.setPoints(joueur.getPoints() + 1);
-					lblScore.setText("Score : " + joueur.getPoints());
+					if (!lblTir.getBackground().equals(SWTResourceManager.getColor(SWT.COLOR_WHITE))) // Si ce n'est pas un tir d'un alien
+					{
+						joueur.setPoints(joueur.getPoints() + 1);
+						lblScore.setText("Score : " + joueur.getPoints());
+					}					
 					listeAliens.remove(alien);
 				}
 				return true;
@@ -386,7 +389,7 @@ public class App {
 	public static void tirJoueur(Label lblTir) {
 		yTir -= 8;
 		lblTir.setLocation(xTir, yTir);
-		if (alienACettePosition(xTir, yTir) || joueurACettePosition(xTir, yTir)) {
+		if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
 			entiteToucheeParJoueur = true;
 		} else {
 			lblTir.redraw();
@@ -437,7 +440,7 @@ public class App {
 		int yTir = lblTir.getLocation().y;
 		yTir += 8;
 		lblTir.setLocation(xTir, yTir);
-		if (alienACettePosition(xTir, yTir) || joueurACettePosition(xTir, yTir)) {
+		if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
 			entiteToucheeParAlien = true;
 		} else {
 			lblTir.redraw();
