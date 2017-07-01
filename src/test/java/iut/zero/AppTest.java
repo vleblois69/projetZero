@@ -122,5 +122,21 @@ public class AppTest
 		assertEquals(ancienX + App.mouvement, premierAlien.getLabel().getLocation().x);
 	}
 	
+	@Test
+	public void descendreAliensSiBordAtteint()
+	{
+		App.initialisation();
+		App.generationListeners();
+		App.genererAliens(App.compJeu, App.display);
+		App.shell.layout();
+		App.shell.pack();
+		App.jeuEnCours = true;
+		App.bordAtteint = true;
+		Alien premierAlien = App.listeAliens.get(0);
+		int ancienY = premierAlien.getLabel().getLocation().y;
+		App.deplacementAliens();
+		assertEquals(ancienY + 10, premierAlien.getLabel().getLocation().y);
+	}
+	
     
 }
