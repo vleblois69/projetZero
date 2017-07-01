@@ -30,8 +30,8 @@ public class App {
 	 * @param args
 	 */
 
-	final static int NB_ALIENS_PAR_LIGNE = 10;
-	final static int NB_LIGNES = 3;
+	final static int NB_ALIENS_PAR_LIGNE = 2;
+	final static int NB_LIGNES = 1;
 	final static int Y_DEBUT_VAISSEAU = 422;
 	final static int X_DEBUT_VAISSEAU = 380;
 	final static int ECART_ENTRE_ALIENS = 10;
@@ -53,6 +53,7 @@ public class App {
 	static Label lblTitre;
 	static Button btnStart;
 	static Button btnRetournerAuMenu;
+	static Button btnNiveauSuivant;
 	static Label lblScore;
 
 	// Variables du tir
@@ -118,9 +119,14 @@ public class App {
 		compJeu.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
 
 		btnRetournerAuMenu = new Button(compJeu, SWT.NONE);
-		btnRetournerAuMenu.setBounds(275, 210, 178, 42);
+		btnRetournerAuMenu.setBounds(275, 230, 178, 42);
 		btnRetournerAuMenu.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnRetournerAuMenu.setText("Retourner au menu");
+
+		btnNiveauSuivant = new Button(compJeu, SWT.NONE);
+		btnNiveauSuivant.setBounds(275, 170, 178, 42);
+		btnNiveauSuivant.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		btnNiveauSuivant.setText("Niveau suivant");
 
 		joueur = new Joueur(compJeu, display);
 
@@ -162,60 +168,14 @@ public class App {
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				compJeu.setVisible(true);
-				compMenu.setVisible(false);
-				btnRetournerAuMenu.setVisible(false);
-
-				joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
-				joueur.getLabel().setVisible(true);
-				joueur.setPv(3);
-				genererAliens(compJeu, display);
-				lblScore.setText("Score : " + joueur.getPoints());
-
-				jeuEnCours = true;
-				mouvement = 10;
-				//Deplacement des aliens
-				Display.getCurrent().timerExec(200, new Runnable() {
-					@Override
-					public void run() {
-						deplacementAliens();
-						if (jeuEnCours) {
-							Display.getCurrent().timerExec(200, this);
-						} else {
-							Display.getCurrent().timerExec(-1, this);
-						}
-
-					}
-				});
-				//Tir des aliens
-				Display.getCurrent().timerExec(600, new Runnable() {
-					@Override
-					public void run() {
-						Display.getCurrent().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								final Label lblTir = initialiserTirAlien();
-								Display.getCurrent().timerExec(1, new Runnable() {
-									@Override
-									public void run() {
-										tirAlien(lblTir);
-										if (!lblTir.isDisposed()) {
-											Display.getCurrent().timerExec(1, this);
-										}
-									}
-								});
-							}
-						});
-						if (jeuEnCours) {
-							Display.getCurrent().timerExec(600, this);
-						} else {
-							Display.getCurrent().timerExec(-1, this);
-						}
-
-					}
-				});
-				
-				
+				lancementPartie();
+			}
+		});
+		
+		btnNiveauSuivant.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				lancementPartie();
 			}
 		});
 
@@ -277,11 +237,18 @@ public class App {
 			if ((x >= xAlien && x <= xAlien + widthAlien) && (y <= yAlien && y >= yAlien - heightAlien)) {
 				alien.retirerPV(1);
 				if (alien.getPv() <= 0) {
-					if (!lblTir.getBackground().equals(SWTResourceManager.getColor(SWT.COLOR_WHITE))) // Si ce n'est pas un tir d'un alien
+					if (!lblTir.getBackground().equals(SWTResourceManager.getColor(SWT.COLOR_WHITE))) // Si
+																										// ce
+																										// n'est
+																										// pas
+																										// un
+																										// tir
+																										// d'un
+																										// alien
 					{
 						joueur.setPoints(joueur.getPoints() + 1);
 						lblScore.setText("Score : " + joueur.getPoints());
-					}					
+					}
 					listeAliens.remove(alien);
 				}
 				return true;
@@ -363,6 +330,10 @@ public class App {
 	}
 
 	public static void finDeLaPartie() {
+		if (listeAliens.isEmpty()) //Dans le cas où le joueur a gagné
+		{
+			btnNiveauSuivant.setVisible(true);
+		}
 		jeuEnCours = false;
 		btnRetournerAuMenu.setVisible(true);
 	}
@@ -395,20 +366,16 @@ public class App {
 			lblTir.redraw();
 			compJeu.update();
 		}
-		if (yTir - 8 < 0 || entiteToucheeParJoueur) 
-		{
-			if (!deuxiemePassage && !entiteToucheeParJoueur) 
-			{
+		if (yTir - 8 < 0 || entiteToucheeParJoueur) {
+			if (!deuxiemePassage && !entiteToucheeParJoueur) {
 				yTir = compJeu.getSize().y + 8;
 				deuxiemePassage = true;
-			} else 
-			{
+			} else {
 				lblTir.dispose();
 				tirEnCours = false;
 				deuxiemePassage = false;
 				entiteToucheeParJoueur = false;
-				if (listeAliens.isEmpty() || joueur.getPv() == 0) 
-				{
+				if (listeAliens.isEmpty() || joueur.getPv() == 0) {
 					finDeLaPartie();
 				}
 			}
@@ -421,39 +388,109 @@ public class App {
 	 * @return Le label du tir initialisé
 	 */
 	public static Label initialiserTirAlien() {
-		Random random = new Random();
-		int indexAleatoire = random.nextInt(listeAliens.size());
-		Alien alien = listeAliens.get(indexAleatoire);
-		Label lblAlien = alien.getLabel();
-		int x = lblAlien.getBounds().x;
-		int y = lblAlien.getBounds().y;
-		Label lblTir = new Label(compJeu, SWT.NONE);
-		// tirEnCours = true;
-		lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		lblTir.setBounds(x + lblAlien.getSize().x / 2, y + 1, 5, 30);
-		compJeu.update();
+		Label lblTir = null;
+		if (!listeAliens.isEmpty())
+		{
+			Random random = new Random();
+			int indexAleatoire = random.nextInt(listeAliens.size());
+			Alien alien = listeAliens.get(indexAleatoire);
+			Label lblAlien = alien.getLabel();
+			int x = lblAlien.getBounds().x;
+			int y = lblAlien.getBounds().y;
+			lblTir = new Label(compJeu, SWT.NONE);
+			// tirEnCours = true;
+			lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			lblTir.setBounds(x + lblAlien.getSize().x / 2, y + 1, 5, 30);
+			compJeu.update();
+		}		
 		return lblTir;
 	}
 
 	public static void tirAlien(Label lblTir) {
-		int xTir = lblTir.getLocation().x;
-		int yTir = lblTir.getLocation().y;
-		yTir += 8;
-		lblTir.setLocation(xTir, yTir);
-		if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
-			entiteToucheeParAlien = true;
-		} else {
-			lblTir.redraw();
-			compJeu.update();
-		}
-		if (yTir + 8 > compJeu.getSize().y || entiteToucheeParAlien) 
+		if (lblTir != null)
 		{
-			lblTir.dispose();
-			entiteToucheeParAlien = false;
-			if (listeAliens.isEmpty() || joueur.getPv() == 0) 
-			{
-				finDeLaPartie();
+			int xTir = lblTir.getLocation().x;
+			int yTir = lblTir.getLocation().y;
+			yTir += 8;
+			lblTir.setLocation(xTir, yTir);
+			if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
+				entiteToucheeParAlien = true;
+			} else {
+				lblTir.redraw();
+				compJeu.update();
 			}
-		}
+			if (yTir + 8 > compJeu.getSize().y || entiteToucheeParAlien) {
+				lblTir.dispose();
+				entiteToucheeParAlien = false;
+				if (listeAliens.isEmpty() || joueur.getPv() == 0) {
+					finDeLaPartie();
+				}
+			}
+		}		
+	}
+
+	public static void lancementPartie() {
+		compJeu.setVisible(true);
+		compMenu.setVisible(false);
+		btnRetournerAuMenu.setVisible(false);
+		btnNiveauSuivant.setVisible(false);
+
+		joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
+		joueur.getLabel().setVisible(true);
+		joueur.setPv(3);
+		genererAliens(compJeu, display);
+		lblScore.setText("Score : " + joueur.getPoints());
+
+		jeuEnCours = true;
+		mouvement = 10;
+		
+		lancementDeplacementAliens();
+		lancementTirsAutoAliens();
+
+	}
+
+	public static void lancementDeplacementAliens() {
+		// Deplacement des aliens
+		Display.getCurrent().timerExec(200, new Runnable() {
+			@Override
+			public void run() {
+				deplacementAliens();
+				if (jeuEnCours) {
+					Display.getCurrent().timerExec(200, this);
+				} else {
+					Display.getCurrent().timerExec(-1, this);
+				}
+
+			}
+		});
+	}
+
+	public static void lancementTirsAutoAliens() {
+		// Tir des aliens
+		Display.getCurrent().timerExec(600, new Runnable() {
+			@Override
+			public void run() {
+				Display.getCurrent().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						final Label lblTir = initialiserTirAlien();
+						Display.getCurrent().timerExec(1, new Runnable() {
+							@Override
+							public void run() {
+								tirAlien(lblTir);
+								if (lblTir != null && !lblTir.isDisposed()) {
+									Display.getCurrent().timerExec(1, this);
+								}
+							}
+						});
+					}
+				});
+				if (jeuEnCours) {
+					Display.getCurrent().timerExec(600, this);
+				} else {
+					Display.getCurrent().timerExec(-1, this);
+				}
+			}
+		});
 	}
 }
