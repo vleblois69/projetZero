@@ -6,6 +6,7 @@ import org.eclipse.swt.widgets.Label;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -20,8 +21,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 
 public class App {
 
@@ -60,7 +59,8 @@ public class App {
 	static int yTir, xTir;
 	static boolean tirEnCours = false;
 	static boolean deuxiemePassage = false;
-	static boolean entiteTouchee = false;
+	static boolean entiteToucheeParJoueur = false;
+	static boolean entiteToucheeParAlien = false;
 
 	public static void main(String[] args) {
 
@@ -174,6 +174,7 @@ public class App {
 
 				jeuEnCours = true;
 				mouvement = 10;
+				//Deplacement des aliens
 				Display.getCurrent().timerExec(200, new Runnable() {
 					@Override
 					public void run() {
@@ -186,6 +187,35 @@ public class App {
 
 					}
 				});
+				//Tir des aliens
+				Display.getCurrent().timerExec(600, new Runnable() {
+					@Override
+					public void run() {
+						Display.getCurrent().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								final Label lblTir = initialiserTirAlien();
+								Display.getCurrent().timerExec(1, new Runnable() {
+									@Override
+									public void run() {
+										tirAlien(lblTir);
+										if (!lblTir.isDisposed()) {
+											Display.getCurrent().timerExec(1, this);
+										}
+									}
+								});
+							}
+						});
+						if (jeuEnCours) {
+							Display.getCurrent().timerExec(600, this);
+						} else {
+							Display.getCurrent().timerExec(-1, this);
+						}
+
+					}
+				});
+				
+				
 			}
 		});
 
@@ -357,25 +387,70 @@ public class App {
 		yTir -= 8;
 		lblTir.setLocation(xTir, yTir);
 		if (alienACettePosition(xTir, yTir) || joueurACettePosition(xTir, yTir)) {
-			entiteTouchee = true;
+			entiteToucheeParJoueur = true;
 		} else {
 			lblTir.redraw();
 			compJeu.update();
 		}
-		if (yTir - 8 < 0 || entiteTouchee)
+		if (yTir - 8 < 0 || entiteToucheeParJoueur) 
 		{
-			if (!deuxiemePassage && !entiteTouchee) {
+			if (!deuxiemePassage && !entiteToucheeParJoueur) 
+			{
 				yTir = compJeu.getSize().y + 8;
 				deuxiemePassage = true;
-			} else {
+			} else 
+			{
 				lblTir.dispose();
 				tirEnCours = false;
 				deuxiemePassage = false;
-				entiteTouchee = false;
-				if (listeAliens.isEmpty() || joueur.getPv() == 0) {
+				entiteToucheeParJoueur = false;
+				if (listeAliens.isEmpty() || joueur.getPv() == 0) 
+				{
 					finDeLaPartie();
 				}
 			}
-		}		
+		}
+	}
+
+	/**
+	 * Initialise le tir et renvoie le label correspondant
+	 * 
+	 * @return Le label du tir initialisé
+	 */
+	public static Label initialiserTirAlien() {
+		Random random = new Random();
+		int indexAleatoire = random.nextInt(listeAliens.size());
+		Alien alien = listeAliens.get(indexAleatoire);
+		Label lblAlien = alien.getLabel();
+		int x = lblAlien.getBounds().x;
+		int y = lblAlien.getBounds().y;
+		Label lblTir = new Label(compJeu, SWT.NONE);
+		// tirEnCours = true;
+		lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lblTir.setBounds(x + lblAlien.getSize().x / 2, y + 1, 5, 30);
+		compJeu.update();
+		return lblTir;
+	}
+
+	public static void tirAlien(Label lblTir) {
+		int xTir = lblTir.getLocation().x;
+		int yTir = lblTir.getLocation().y;
+		yTir += 8;
+		lblTir.setLocation(xTir, yTir);
+		if (alienACettePosition(xTir, yTir) || joueurACettePosition(xTir, yTir)) {
+			entiteToucheeParAlien = true;
+		} else {
+			lblTir.redraw();
+			compJeu.update();
+		}
+		if (yTir + 8 > compJeu.getSize().y || entiteToucheeParAlien) 
+		{
+			lblTir.dispose();
+			entiteToucheeParAlien = false;
+			if (listeAliens.isEmpty() || joueur.getPv() == 0) 
+			{
+				finDeLaPartie();
+			}
+		}
 	}
 }
