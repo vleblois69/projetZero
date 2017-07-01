@@ -25,7 +25,15 @@ public class Entite
 		pv -= degats;
 		if (pv <= 0)
 		{
-			label.dispose();
+			if (this instanceof Joueur)
+			{
+				label.setVisible(false);
+			}
+			else
+			{
+				label.dispose();
+			}
+			
 		}
 	}
 	

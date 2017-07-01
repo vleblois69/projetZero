@@ -33,7 +33,7 @@ public class App {
 
 	final static int NB_ALIENS_PAR_LIGNE = 10;
 	final static int NB_LIGNES = 3;
-	final static int Y_DEBUT_VAISSEAU = 432;
+	final static int Y_DEBUT_VAISSEAU = 422;
 	final static int X_DEBUT_VAISSEAU = 380;
 	final static int ECART_ENTRE_ALIENS = 10;
 
@@ -60,7 +60,7 @@ public class App {
 	static int yTir, xTir;
 	static boolean tirEnCours = false;
 	static boolean deuxiemePassage = false;
-	static boolean alienTouche = false;
+	static boolean entiteTouchee = false;
 
 	public static void main(String[] args) {
 
@@ -168,6 +168,8 @@ public class App {
 				btnRetournerAuMenu.setVisible(false);
 
 				joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
+				joueur.getLabel().setVisible(true);
+				joueur.setPv(3);
 				genererAliens(compJeu, display);
 				lblScore.setText("Score : " + joueur.getPoints());
 
@@ -229,8 +231,12 @@ public class App {
 	public static boolean alienACettePosition(int x, int y) {
 		for (Alien alien : listeAliens) {
 			Label lblAlien = alien.getLabel();
-			if ((x >= lblAlien.getLocation().x && x <= lblAlien.getLocation().x + 50)
-					&& y <= lblAlien.getLocation().y) {
+			int xAlien = lblAlien.getLocation().x;
+			int yAlien = lblAlien.getLocation().y;
+			int widthAlien = lblAlien.getSize().x;
+			int heightAlien = lblAlien.getSize().y;
+			if ((x >= xAlien && x <= xAlien + widthAlien)
+					&& (y <= yAlien && y >= yAlien - heightAlien)) {
 				alien.retirerPV(1);
 				if (alien.getPv() <= 0) {
 					joueur.setPoints(joueur.getPoints() + 1);
@@ -239,6 +245,23 @@ public class App {
 				}
 				return true;
 			}
+		}
+		return false;
+	}
+	
+	public static boolean joueurACettePosition(int x, int y) {
+		Label lblVaisseau = joueur.getLabel();
+		int xVaisseau = lblVaisseau.getLocation().x;
+		int yVaisseau = lblVaisseau.getLocation().y;
+		int widthVaisseau = lblVaisseau.getSize().x;
+		int heightVaisseau = lblVaisseau.getSize().y;
+		if ((x >= xVaisseau && x <= xVaisseau + widthVaisseau)
+				&& (y <= yVaisseau && y >= yVaisseau - heightVaisseau))
+		{
+			lblVaisseau.setVisible(false);
+			lblVaisseau.setVisible(true);
+			joueur.retirerPV(1);			
+			return true;
 		}
 		return false;
 	}
@@ -295,17 +318,22 @@ public class App {
 					lblAlien.setLocation(lblAlien.getLocation().x, lblAlien.getLocation().y + 10);
 				}
 				if (lblAlien.getLocation().y >= (Y_DEBUT_VAISSEAU - 50)) {
-					jeuEnCours = false;
-					btnRetournerAuMenu.setVisible(true);
+					finDeLaPartie();
 				}
 			}			
 		}
 	}
 	
+	public static void finDeLaPartie()
+	{
+		jeuEnCours = false;
+		btnRetournerAuMenu.setVisible(true);
+	}
+	
 	public static void tirJoueur()
 	{
 
-		Label lblVaisseau = joueur.getLabel();
+		final Label lblVaisseau = joueur.getLabel();
 		final int x = lblVaisseau.getBounds().x;
 		final int y = lblVaisseau.getBounds().y;		
 		Display.getCurrent().asyncExec(new Runnable() {
@@ -314,7 +342,7 @@ public class App {
 				final Label lblTir = new Label(compJeu, SWT.NONE);
 				tirEnCours = true;
 				lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
-				lblTir.setBounds(x + 25, y, 5, 30);
+				lblTir.setBounds(x + lblVaisseau.getSize().x/2, y - (lblVaisseau.getSize().y + 1), 5, 30);
 				compJeu.update();
 				xTir = lblTir.getBounds().x;
 				yTir = lblTir.getBounds().y;
@@ -323,18 +351,18 @@ public class App {
 					public void run() {
 						yTir -= 8;
 						lblTir.setLocation(xTir, yTir);
-						if (alienACettePosition(xTir, yTir)) {
-							alienTouche = true;
+						if (alienACettePosition(xTir, yTir) || joueurACettePosition(xTir, yTir)) {
+							entiteTouchee = true;
 						} else {
 							lblTir.redraw();
 							compJeu.update();
 						}
-						if (yTir - 8 > 0 && !alienTouche) {
+						if (yTir - 8 > 0 && !entiteTouchee) {
 							Display.getCurrent().timerExec(1, this);														
 						} 
 						else 
 						{
-							if (!deuxiemePassage && !alienTouche)
+							if (!deuxiemePassage && !entiteTouchee)
 							{
 								yTir = compJeu.getSize().y + 8;
 								deuxiemePassage = true;
@@ -345,10 +373,9 @@ public class App {
 								lblTir.dispose();
 								tirEnCours = false;
 								deuxiemePassage = false;
-								alienTouche = false;
-								if (listeAliens.isEmpty()) {
-									jeuEnCours = false;
-									btnRetournerAuMenu.setVisible(true);
+								entiteTouchee = false;
+								if (listeAliens.isEmpty() || joueur.getPv() == 0) {
+									finDeLaPartie();
 								}
 							}							
 						}
