@@ -20,6 +20,8 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class App {
 
@@ -97,7 +99,7 @@ public class App {
 		lblTitre.setBounds(199, 68, 307, 67);
 		lblTitre.setText("Space Invaders");
 
-		btnStart = new Button(compMenu, SWT.CENTER);
+		btnStart = new Button(compMenu, SWT.CENTER);		
 		btnStart.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
 		btnStart.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnStart.setBounds(284, 226, 117, 43);
@@ -113,7 +115,6 @@ public class App {
 		fd_compJeu.left = new FormAttachment(0);
 		compJeu.setLayoutData(fd_compJeu);
 		compJeu.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-		compJeu.setVisible(true);
 
 		btnRetournerAuMenu = new Button(compJeu, SWT.NONE);
 		btnRetournerAuMenu.setBounds(275, 210, 178, 42);
@@ -160,6 +161,7 @@ public class App {
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				System.out.println("Passe bien dans le listener");
 				compJeu.setVisible(true);
 				compMenu.setVisible(false);
 				btnRetournerAuMenu.setVisible(false);
