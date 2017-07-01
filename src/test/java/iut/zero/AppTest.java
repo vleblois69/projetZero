@@ -210,6 +210,25 @@ public class AppTest
 		assertEquals(ancienScore, joueur.getPoints());
 	}
 	
+	@Test
+	public void perdreRemetLeScoreAZero()
+	{		
+		raz();
+		joueur.setPoints(5);
+		joueur.setPv(1);
+		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU);
+		
+		Alien alien1 = new Alien(App.compJeu, App.display);
+		alien1.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien1);	
+
+		Label lblTir = App.initialiserTirAlien();
+		lblTir.setLocation(alien1.getLabel().getLocation().x, alien1.getLabel().getLocation().y + 51);
+		App.tirAlien(lblTir);
+			
+		assertEquals(0, joueur.getPoints());
+	}
+	
 	public void raz()
 	{
 		App.listeAliens.clear();
