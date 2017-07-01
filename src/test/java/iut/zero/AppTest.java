@@ -178,5 +178,27 @@ public class AppTest
 		assertTrue(alien.getLabel().isDisposed());
 	}
 	
+	@Test
+	public void augmenterLeScoreSiAlienDetruitParTirJoueur()
+	{
+		App.initialisation();
+		App.generationListeners();
+		App.shell.layout();
+		App.shell.pack();
+		Joueur joueur = App.joueur;
+		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
+		Alien alien = new Alien(App.compJeu, App.display);		
+		alien.setPv(1);
+		alien.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien);
+		int ancienScore = joueur.getPoints();
+		Label lblTir = App.initialiserTirJoueur();
+		while (App.tirEnCours)
+		{
+			App.tirJoueur(lblTir);
+		}	
+		assertEquals(ancienScore + 1, joueur.getPoints());
+	}
+	
     
 }
