@@ -157,5 +157,26 @@ public class AppTest
 		assertEquals(ancienPV - 1, joueur.getPv());
 	}
 	
+	@Test
+	public void detruireUnAlienSiToucheParTirJoueur()
+	{
+		App.initialisation();
+		App.generationListeners();
+		App.shell.layout();
+		App.shell.pack();
+		Joueur joueur = App.joueur;
+		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
+		Alien alien = new Alien(App.compJeu, App.display);		
+		alien.setPv(1);
+		alien.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien);
+		Label lblTir = App.initialiserTirJoueur();
+		while (App.tirEnCours)
+		{
+			App.tirJoueur(lblTir);
+		}	
+		assertTrue(alien.getLabel().isDisposed());
+	}
+	
     
 }
