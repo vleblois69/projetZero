@@ -334,6 +334,10 @@ public class App {
 		{
 			btnNiveauSuivant.setVisible(true);
 		}
+		else
+		{
+			joueur.setPoints(0); //Le joueur a perdu, on remet son score à 0
+		}
 		jeuEnCours = false;
 		btnRetournerAuMenu.setVisible(true);
 	}
