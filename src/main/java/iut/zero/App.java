@@ -205,10 +205,7 @@ public class App {
 
 			@Override
 			public void keyPressed(KeyEvent keyPressed) {
-				if (jeuEnCours) {
-					Label lblVaisseau = joueur.getLabel();
-					final int x = lblVaisseau.getBounds().x;
-					final int y = lblVaisseau.getBounds().y;					
+				if (jeuEnCours) {					
 					if (keyPressed.keyCode == SWT.ARROW_RIGHT) {
 						deplacerVaisseau(15);
 					} else if (keyPressed.keyCode == SWT.ARROW_LEFT) {
@@ -217,41 +214,7 @@ public class App {
 						if (keyPressed.keyCode == SWT.SPACE) {
 							if (!tirEnCours)
 							{
-								Display.getCurrent().asyncExec(new Runnable() {
-									@Override
-									public void run() {
-										final Label lblTir = new Label(compJeu, SWT.NONE);
-										tirEnCours = true;
-										lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
-										lblTir.setBounds(x + 25, y, 5, 30);
-										compJeu.update();
-										xTir = lblTir.getBounds().x;
-										yTir = lblTir.getBounds().y;
-										Display.getCurrent().timerExec(1, new Runnable() {
-											@Override
-											public void run() {
-												yTir -= 8;
-												lblTir.setLocation(xTir, yTir);
-												if (alienACettePosition(xTir, yTir)) {
-													yTir = 0;
-												} else {
-													lblTir.redraw();
-													compJeu.update();
-												}
-												if (yTir - 8 > 0) {
-													Display.getCurrent().timerExec(1, this);
-												} else {
-													lblTir.dispose();
-													tirEnCours = false;
-													if (listeAliens.isEmpty()) {
-														jeuEnCours = false;
-														btnRetournerAuMenu.setVisible(true);
-													}
-												}
-											}
-										});
-									}
-								});
+								tirJoueur();
 							}							
 						}
 					}
@@ -335,5 +298,48 @@ public class App {
 				}
 			}			
 		}
+	}
+	
+	public static void tirJoueur()
+	{
+
+		Label lblVaisseau = joueur.getLabel();
+		final int x = lblVaisseau.getBounds().x;
+		final int y = lblVaisseau.getBounds().y;
+		Display.getCurrent().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				final Label lblTir = new Label(compJeu, SWT.NONE);
+				tirEnCours = true;
+				lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+				lblTir.setBounds(x + 25, y, 5, 30);
+				compJeu.update();
+				xTir = lblTir.getBounds().x;
+				yTir = lblTir.getBounds().y;
+				Display.getCurrent().timerExec(1, new Runnable() {
+					@Override
+					public void run() {
+						yTir -= 8;
+						lblTir.setLocation(xTir, yTir);
+						if (alienACettePosition(xTir, yTir)) {
+							yTir = 0;
+						} else {
+							lblTir.redraw();
+							compJeu.update();
+						}
+						if (yTir - 8 > 0) {
+							Display.getCurrent().timerExec(1, this);
+						} else {
+							lblTir.dispose();
+							tirEnCours = false;
+							if (listeAliens.isEmpty()) {
+								jeuEnCours = false;
+								btnRetournerAuMenu.setVisible(true);
+							}
+						}
+					}
+				});
+			}
+		});
 	}
 }
