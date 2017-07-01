@@ -10,7 +10,7 @@ public class DoubleCanons extends Arme {
 		description = "Permet de tirer 2 lasers latéraux";
 		prix = 10;
 		degats = 2;
-		couleur = SWTResourceManager.getColor(SWT.COLOR_BLUE);
+		couleur = SWTResourceManager.getColor(SWT.COLOR_CYAN);
 	}
 
 }

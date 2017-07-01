@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.events.KeyAdapter;
@@ -50,11 +51,18 @@ public class App {
 	static Shell shell;
 	static Composite compMenu;
 	static Composite compJeu;
+	static Composite compShop;
 	static Label lblTitre;
+	static Label lblScore;
+	static Label lblShop;
 	static Button btnStart;
 	static Button btnRetournerAuMenu;
 	static Button btnNiveauSuivant;
-	static Label lblScore;
+	static Button btnShop;
+	static Button btnQuitterShop;
+	static Button btnLaser;
+	static Button btnDoubleCanons;
+	
 
 	// Variables du tir
 	static int yTir, xTir;
@@ -119,7 +127,7 @@ public class App {
 		compJeu.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
 
 		btnRetournerAuMenu = new Button(compJeu, SWT.NONE);
-		btnRetournerAuMenu.setBounds(275, 230, 178, 42);
+		btnRetournerAuMenu.setBounds(275, 280, 178, 42);
 		btnRetournerAuMenu.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnRetournerAuMenu.setText("Retourner au menu");
 
@@ -127,6 +135,11 @@ public class App {
 		btnNiveauSuivant.setBounds(275, 170, 178, 42);
 		btnNiveauSuivant.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnNiveauSuivant.setText("Niveau suivant");
+		
+		btnShop = new Button(compJeu, SWT.NONE);
+		btnShop.setBounds(275, 225, 178, 42);
+		btnShop.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		btnShop.setText("Boutique");		
 
 		joueur = new Joueur(compJeu, display);
 
@@ -135,6 +148,30 @@ public class App {
 		lblScore.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblScore.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
 		lblScore.setBounds(5, 0, 104, 21);
+		
+		compShop = new Composite(shell, SWT.BORDER);
+		compShop.setLayout(null);
+		FormData fd_compShop = new FormData();
+		fd_compShop.bottom = new FormAttachment(0, 492);
+		fd_compShop.right = new FormAttachment(0, 732);
+		fd_compShop.top = new FormAttachment(0);
+		fd_compShop.left = new FormAttachment(0);
+		compShop.setLayoutData(fd_compShop);
+		compShop.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+		
+		lblShop = new Label(compShop, SWT.NONE);
+		lblShop.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lblShop.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
+		lblShop.setFont(SWTResourceManager.getFont("Segoe UI", 24, SWT.NORMAL));
+		lblShop.setBounds(280, 38, 307, 57);
+		lblShop.setText("Boutique");
+		
+		btnQuitterShop = new Button(compShop, SWT.NONE);
+		btnQuitterShop.setBounds(280, 380, 178, 42);
+		btnQuitterShop.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		btnQuitterShop.setText("Retour");
+		
+		ajoutArmesDansShop();
 	}
 
 	// Centre la fenetre au milieu de l'écran
@@ -188,6 +225,23 @@ public class App {
 					alien.getLabel().dispose();
 				}
 				listeAliens.clear();
+			}
+		});
+		
+		btnShop.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				compMenu.setVisible(false);
+				compJeu.setVisible(false);
+				compShop.setVisible(true);
+			}
+		});
+		
+		btnQuitterShop.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				compShop.setVisible(false);
+				compJeu.setVisible(true);
 			}
 		});
 
@@ -333,6 +387,7 @@ public class App {
 		if (listeAliens.isEmpty()) //Dans le cas où le joueur a gagné
 		{
 			btnNiveauSuivant.setVisible(true);
+			btnShop.setVisible(true);
 		}
 		else
 		{
@@ -436,8 +491,10 @@ public class App {
 	public static void lancementPartie() {
 		compJeu.setVisible(true);
 		compMenu.setVisible(false);
+		compShop.setVisible(false);
 		btnRetournerAuMenu.setVisible(false);
 		btnNiveauSuivant.setVisible(false);
+		btnShop.setVisible(false);
 
 		joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
 		joueur.getLabel().setVisible(true);
@@ -496,5 +553,46 @@ public class App {
 				}
 			}
 		});
+	}
+	
+	public static void ajoutArmesDansShop()
+	{
+		Laser laser = new Laser();		
+		Label lblLaser = new Label(compShop, SWT.NONE);
+		lblLaser.setBackground(laser.couleur);
+		lblLaser.setSize(50, 50);
+		lblLaser.setLocation(80, 128);
+				
+		Label lblDescLaser = new Label(compShop, SWT.NONE);
+		lblDescLaser.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lblDescLaser.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
+		lblDescLaser.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		lblDescLaser.setSize(420, 50);
+		lblDescLaser.setLocation(150, 128);
+		lblDescLaser.setText(laser.description);
+		
+		btnLaser = new Button(compShop, SWT.NONE);
+		btnLaser.setBounds(580, 128, 50, 50);
+		btnLaser.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		btnLaser.setText(String.valueOf(laser.prix));
+		
+		DoubleCanons doubleCanons = new DoubleCanons();		
+		Label lblDoubleCanons = new Label(compShop, SWT.NONE);
+		lblDoubleCanons.setBackground(doubleCanons.couleur);
+		lblDoubleCanons.setSize(50, 50);
+		lblDoubleCanons.setLocation(80, 208);
+		
+		Label lblDescDoubleCanons = new Label(compShop, SWT.NONE);
+		lblDescDoubleCanons.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lblDescDoubleCanons.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
+		lblDescDoubleCanons.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		lblDescDoubleCanons.setSize(350, 50);
+		lblDescDoubleCanons.setLocation(150, 208);
+		lblDescDoubleCanons.setText(doubleCanons.description);
+		
+		btnDoubleCanons = new Button(compShop, SWT.NONE);
+		btnDoubleCanons.setBounds(580, 208, 50, 50);
+		btnDoubleCanons.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		btnDoubleCanons.setText(String.valueOf(doubleCanons.prix));
 	}
 }
