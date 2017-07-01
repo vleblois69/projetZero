@@ -16,14 +16,17 @@ import org.junit.Test;
  */
 public class AppTest 
 {
-	
-	private App app;
 	private Robot robot;
+	private Joueur joueur;
 	
 	@Before
 	public void initialisation()
 	{
-		app = new App();		
+		App.initialisation();
+		App.generationListeners();
+		App.shell.layout();
+		App.shell.pack();
+		joueur = App.joueur;
 	}
 	
 	/*@Test
@@ -55,12 +58,8 @@ public class AppTest
 	
 	@Test
 	public void deplacerVaisseauVerslaDroite()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		Joueur joueur = App.joueur;
+	{		
+		raz();
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
 		App.deplacerVaisseau(15);
@@ -69,12 +68,8 @@ public class AppTest
 	
 	@Test
 	public void deplacerVaisseauVerslaGauche()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		Joueur joueur = App.joueur;
+	{		
+		raz();
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
 		App.deplacerVaisseau(-15);
@@ -83,12 +78,8 @@ public class AppTest
 	
 	@Test
 	public void bloquerVaisseauContreLeBordDroit()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		Joueur joueur = App.joueur;
+	{		
+		raz();
 		joueur.getLabel().setLocation(App.compJeu.getSize().x - 50,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
 		App.deplacerVaisseau(15);
@@ -97,12 +88,8 @@ public class AppTest
 	
 	@Test
 	public void bloquerVaisseauContreLeBordGauche()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		Joueur joueur = App.joueur;
+	{		
+		raz();
 		joueur.getLabel().setLocation(0,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
 		App.deplacerVaisseau(-15);
@@ -111,12 +98,9 @@ public class AppTest
 	
 	@Test
 	public void deplacerTousLesAliensUneFois()
-	{
-		App.initialisation();
-		App.generationListeners();
+	{		
+		raz();
 		App.genererAliens(App.compJeu, App.display);
-		App.shell.layout();
-		App.shell.pack();
 		Alien premierAlien = App.listeAliens.get(0);
 		int ancienX = premierAlien.getLabel().getLocation().x;
 		App.deplacementAliens();
@@ -125,12 +109,9 @@ public class AppTest
 	
 	@Test
 	public void descendreAliensSiBordAtteint()
-	{
-		App.initialisation();
-		App.generationListeners();
+	{		
+		raz();
 		App.genererAliens(App.compJeu, App.display);
-		App.shell.layout();
-		App.shell.pack();
 		App.jeuEnCours = true;
 		App.bordAtteint = true;
 		Alien premierAlien = App.listeAliens.get(0);
@@ -141,12 +122,8 @@ public class AppTest
 	
 	@Test
 	public void enleverDeLaVieAuJoueurSiToucheParPropreTir()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		Joueur joueur = App.joueur;
+	{		
+		raz();
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		int ancienPV = joueur.getPv();
 		Label lblTir = App.initialiserTirJoueur();
@@ -159,12 +136,8 @@ public class AppTest
 	
 	@Test
 	public void detruireUnAlienSiToucheParTirJoueur()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		Joueur joueur = App.joueur;
+	{		
+		raz();
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		Alien alien = new Alien(App.compJeu, App.display);		
 		alien.setPv(1);
@@ -180,12 +153,8 @@ public class AppTest
 	
 	@Test
 	public void augmenterLeScoreSiAlienDetruitParTirJoueur()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		Joueur joueur = App.joueur;
+	{		
+		raz();
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		Alien alien = new Alien(App.compJeu, App.display);		
 		alien.setPv(1);
@@ -202,12 +171,8 @@ public class AppTest
 	
 	@Test
 	public void detruireUnAlienSiToucheParTirAlien()
-	{
-		App.initialisation();
-		App.generationListeners();
-		App.shell.layout();
-		App.shell.pack();
-		
+	{		
+		raz();
 		Alien alien1 = new Alien(App.compJeu, App.display);
 		alien1.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 100);
 		App.listeAliens.add(alien1);
@@ -224,5 +189,10 @@ public class AppTest
 		assertTrue(alien2.getLabel().isDisposed());
 	}
 	
+	public void raz()
+	{
+		App.listeAliens.clear();
+		joueur.getLabel().setLocation(0,0);
+	}
     
 }
