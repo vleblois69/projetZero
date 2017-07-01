@@ -8,7 +8,10 @@ import org.eclipse.swt.widgets.Label;
 
 public class Joueur extends Entite
 {
+	public Arme armeEquipee;
+	
 	public Joueur(Composite composite, Display display) {
+		armeEquipee = null;
 		pv = 3;
 		points = 0;
 		label = new Label(composite, SWT.NONE);
