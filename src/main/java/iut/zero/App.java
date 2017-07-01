@@ -59,6 +59,8 @@ public class App {
 	// Variables du tir
 	static int yTir, xTir;
 	static boolean tirEnCours = false;
+	static boolean deuxiemePassage = false;
+	static boolean alienTouche = false;
 
 	public static void main(String[] args) {
 
@@ -305,7 +307,7 @@ public class App {
 
 		Label lblVaisseau = joueur.getLabel();
 		final int x = lblVaisseau.getBounds().x;
-		final int y = lblVaisseau.getBounds().y;
+		final int y = lblVaisseau.getBounds().y;		
 		Display.getCurrent().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -322,20 +324,33 @@ public class App {
 						yTir -= 8;
 						lblTir.setLocation(xTir, yTir);
 						if (alienACettePosition(xTir, yTir)) {
-							yTir = 0;
+							alienTouche = true;
 						} else {
 							lblTir.redraw();
 							compJeu.update();
 						}
-						if (yTir - 8 > 0) {
-							Display.getCurrent().timerExec(1, this);
-						} else {
-							lblTir.dispose();
-							tirEnCours = false;
-							if (listeAliens.isEmpty()) {
-								jeuEnCours = false;
-								btnRetournerAuMenu.setVisible(true);
+						if (yTir - 8 > 0 && !alienTouche) {
+							Display.getCurrent().timerExec(1, this);														
+						} 
+						else 
+						{
+							if (!deuxiemePassage && !alienTouche)
+							{
+								yTir = compJeu.getSize().y + 8;
+								deuxiemePassage = true;
+								Display.getCurrent().timerExec(1, this);
 							}
+							else
+							{
+								lblTir.dispose();
+								tirEnCours = false;
+								deuxiemePassage = false;
+								alienTouche = false;
+								if (listeAliens.isEmpty()) {
+									jeuEnCours = false;
+									btnRetournerAuMenu.setVisible(true);
+								}
+							}							
 						}
 					}
 				});
