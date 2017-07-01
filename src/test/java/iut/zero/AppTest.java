@@ -189,10 +189,33 @@ public class AppTest
 		assertTrue(alien2.getLabel().isDisposed());
 	}
 	
+	@Test
+	public void pasAugmenterLeScoreSiAlienDetruitParTirAlien()
+	{		
+		raz();
+		int ancienScore = joueur.getPoints();
+		Alien alien1 = new Alien(App.compJeu, App.display);
+		alien1.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien1);
+		
+		Alien alien2 = new Alien(App.compJeu, App.display);		
+		alien2.setPv(1);
+		alien2.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU);
+		App.listeAliens.add(alien2);		
+
+		Label lblTir = App.initialiserTirAlien();
+		lblTir.setLocation(alien1.getLabel().getLocation().x, alien1.getLabel().getLocation().y + 51);
+		App.tirAlien(lblTir);
+			
+		assertEquals(ancienScore, joueur.getPoints());
+	}
+	
 	public void raz()
 	{
 		App.listeAliens.clear();
 		joueur.getLabel().setLocation(0,0);
+		joueur.setPv(3);
+		joueur.setPoints(0);
 	}
     
 }
