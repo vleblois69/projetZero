@@ -200,5 +200,29 @@ public class AppTest
 		assertEquals(ancienScore + 1, joueur.getPoints());
 	}
 	
+	@Test
+	public void detruireUnAlienSiToucheParTirAlien()
+	{
+		App.initialisation();
+		App.generationListeners();
+		App.shell.layout();
+		App.shell.pack();
+		
+		Alien alien1 = new Alien(App.compJeu, App.display);
+		alien1.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien1);
+		
+		Alien alien2 = new Alien(App.compJeu, App.display);		
+		alien2.setPv(1);
+		alien2.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU);
+		App.listeAliens.add(alien2);		
+
+		Label lblTir = App.initialiserTirAlien();
+		lblTir.setLocation(alien1.getLabel().getLocation().x, alien1.getLabel().getLocation().y + 51);
+		App.tirAlien(lblTir);
+			
+		assertTrue(alien2.getLabel().isDisposed());
+	}
+	
     
 }
