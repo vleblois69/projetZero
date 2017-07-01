@@ -161,7 +161,6 @@ public class App {
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				System.out.println("Passe bien dans le listener");
 				compJeu.setVisible(true);
 				compMenu.setVisible(false);
 				btnRetournerAuMenu.setVisible(false);
@@ -173,48 +172,18 @@ public class App {
 				jeuEnCours = true;
 				mouvement = 10;
 				Display.getCurrent().timerExec(200, new Runnable() {
-
 					@Override
 					public void run() {
-
-						if (((bordDroitAlienLePlusADroite >= compJeu.getSize().x)
-								|| (bordGaucheAlienLePlusAGauche + mouvement < 0)) && !bordAtteint && !descendu) {	
-							bordAtteint = true;
-							if (bordDroitAlienLePlusADroite >= compJeu.getSize().x) {
-								bordGaucheAlienLePlusAGauche = bordDroitAlienLePlusADroite - (NB_ALIENS_PAR_LIGNE * 50) - (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
-							} else {
-								bordDroitAlienLePlusADroite = bordGaucheAlienLePlusAGauche + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
-							}
-							mouvement *= -1;
-
+						deplacementAliens();
+						if (jeuEnCours)
+						{
+							Display.getCurrent().timerExec(200, this);							
 						}
-						for (Alien alien : listeAliens) {
-							Label lblAlien = alien.getLabel();
-							if (!bordAtteint || descendu) {
-								lblAlien.setLocation(lblAlien.getLocation().x + mouvement, lblAlien.getLocation().y);
-							} else if (bordAtteint && !descendu) {
-								lblAlien.setLocation(lblAlien.getLocation().x, lblAlien.getLocation().y + 10);
-							}
-							if (lblAlien.getLocation().y >= (Y_DEBUT_VAISSEAU - 50)) {
-								jeuEnCours = false;
-								btnRetournerAuMenu.setVisible(true);
-								Display.getCurrent().timerExec(-1, this);
-							}
-							if (jeuEnCours) {
-								Display.getCurrent().timerExec(200, this);
-							}
+						else
+						{
+							Display.getCurrent().timerExec(-1, this);
 						}
-						if (!bordAtteint || descendu) {
-							bordDroitAlienLePlusADroite += mouvement;							
-							bordGaucheAlienLePlusAGauche += mouvement;							
-						}
-						if (bordAtteint && !descendu) {
-							descendu = true;
-						} else if (bordAtteint && descendu) {
-							bordAtteint = false;
-						} else if (!bordAtteint && descendu) {
-							descendu = false;
-						}
+						
 					}
 				});
 			}
@@ -320,8 +289,51 @@ public class App {
 		}		
 	}
 	
+	public static void deplacementAliens()
+	{
+		if (((bordDroitAlienLePlusADroite >= compJeu.getSize().x)
+				|| (bordGaucheAlienLePlusAGauche + mouvement < 0)) && !bordAtteint && !descendu) {	
+			bordAtteint = true;
+			if (bordDroitAlienLePlusADroite >= compJeu.getSize().x) {
+				bordGaucheAlienLePlusAGauche = bordDroitAlienLePlusADroite - (NB_ALIENS_PAR_LIGNE * 50) - (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
+			} else {
+				bordDroitAlienLePlusADroite = bordGaucheAlienLePlusAGauche + (NB_ALIENS_PAR_LIGNE * 50) + (NB_ALIENS_PAR_LIGNE)*ECART_ENTRE_ALIENS;
+			}
+			mouvement *= -1;
+		}
+		deplacerAliens();
+		if (jeuEnCours)
+		{
+			if (!bordAtteint || descendu) {
+				bordDroitAlienLePlusADroite += mouvement;							
+				bordGaucheAlienLePlusAGauche += mouvement;							
+			}
+			if (bordAtteint && !descendu) {
+				descendu = true;
+			} else if (bordAtteint && descendu) {
+				bordAtteint = false;
+			} else if (!bordAtteint && descendu) {
+				descendu = false;
+			}			
+		}
+	}
+	
 	public static void deplacerAliens()
 	{
-		
+		for (Alien alien : listeAliens) {
+			if (jeuEnCours) //Si le jeu n'est plus en cours, donc qu'un alien a atteint le joueur, on ne déplace pas les aliens restants
+			{
+				Label lblAlien = alien.getLabel();
+				if (!bordAtteint || descendu) {
+					lblAlien.setLocation(lblAlien.getLocation().x + mouvement, lblAlien.getLocation().y);
+				} else if (bordAtteint && !descendu) {
+					lblAlien.setLocation(lblAlien.getLocation().x, lblAlien.getLocation().y + 10);
+				}
+				if (lblAlien.getLocation().y >= (Y_DEBUT_VAISSEAU - 50)) {
+					jeuEnCours = false;
+					btnRetournerAuMenu.setVisible(true);
+				}
+			}			
+		}
 	}
 }

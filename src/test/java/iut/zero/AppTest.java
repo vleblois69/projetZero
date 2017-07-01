@@ -108,5 +108,19 @@ public class AppTest
 		assertEquals(ancienX,joueur.getLabel().getBounds().x);		
 	}
 	
+	@Test
+	public void deplacerTousLesAliensUneFois()
+	{
+		App.initialisation();
+		App.generationListeners();
+		App.genererAliens(App.compJeu, App.display);
+		App.shell.layout();
+		App.shell.pack();
+		Alien premierAlien = App.listeAliens.get(0);
+		int ancienX = premierAlien.getLabel().getLocation().x;
+		App.deplacementAliens();
+		assertEquals(ancienX + App.mouvement, premierAlien.getLabel().getLocation().x);
+	}
+	
     
 }
