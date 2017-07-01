@@ -27,15 +27,5 @@ public class Joueur extends Entite
 	public void setPoints(int points) {
 		this.points = points;
 	}	
-	
-	public void deplacerVaisseau(int mouvement)
-	{
-		int bordDroitVaisseau = label.getLocation().x + label.getSize().x;
-		if ((mouvement > 0 && !(bordDroitVaisseau + mouvement > label.getParent().getSize().x)) 
-				|| (mouvement < 0 && !(label.getLocation().x + mouvement < 0)))
-		{
-			label.setLocation(label.getLocation().x + mouvement, label.getLocation().y);
-		}		
-	}
 
 }

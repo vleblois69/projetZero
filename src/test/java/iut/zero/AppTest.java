@@ -62,7 +62,7 @@ public class AppTest
 		Joueur joueur = App.joueur;
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
-		joueur.deplacerVaisseau(15);
+		App.deplacerVaisseau(15);
 		assertEquals(ancienX + 15,joueur.getLabel().getBounds().x);		
 	}
 	
@@ -76,7 +76,7 @@ public class AppTest
 		Joueur joueur = App.joueur;
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
-		joueur.deplacerVaisseau(-15);
+		App.deplacerVaisseau(-15);
 		assertEquals(ancienX - 15,joueur.getLabel().getBounds().x);		
 	}
 	
@@ -90,7 +90,7 @@ public class AppTest
 		Joueur joueur = App.joueur;
 		joueur.getLabel().setLocation(App.compJeu.getSize().x - 50,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
-		joueur.deplacerVaisseau(15);
+		App.deplacerVaisseau(15);
 		assertEquals(ancienX,joueur.getLabel().getBounds().x);		
 	}
 	
@@ -104,7 +104,7 @@ public class AppTest
 		Joueur joueur = App.joueur;
 		joueur.getLabel().setLocation(0,App.Y_DEBUT_VAISSEAU);
 		int ancienX = joueur.getLabel().getLocation().x;
-		joueur.deplacerVaisseau(-15);
+		App.deplacerVaisseau(-15);
 		assertEquals(ancienX,joueur.getLabel().getBounds().x);		
 	}
 	

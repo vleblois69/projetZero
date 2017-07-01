@@ -221,7 +221,6 @@ public class App {
 		});
 
 		btnRetournerAuMenu.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				compMenu.setVisible(true);
@@ -242,9 +241,9 @@ public class App {
 					final int x = lblVaisseau.getBounds().x;
 					final int y = lblVaisseau.getBounds().y;					
 					if (keyPressed.keyCode == SWT.ARROW_RIGHT) {
-						joueur.deplacerVaisseau(15);
+						deplacerVaisseau(15);
 					} else if (keyPressed.keyCode == SWT.ARROW_LEFT) {
-						joueur.deplacerVaisseau(-15);
+						deplacerVaisseau(-15);
 					} else {
 						if (keyPressed.keyCode == SWT.SPACE) {
 							if (!tirEnCours)
@@ -308,5 +307,21 @@ public class App {
 			}
 		}
 		return false;
+	}
+	
+	public static void deplacerVaisseau(int mouvement)
+	{
+		Label lblVaisseau = joueur.getLabel();
+		int bordDroitVaisseau = lblVaisseau.getLocation().x + lblVaisseau.getSize().x;
+		if ((mouvement > 0 && !(bordDroitVaisseau + mouvement > compJeu.getSize().x)) 
+				|| (mouvement < 0 && !(lblVaisseau.getLocation().x + mouvement < 0)))
+		{
+			lblVaisseau.setLocation(lblVaisseau.getLocation().x + mouvement, lblVaisseau.getLocation().y);
+		}		
+	}
+	
+	public static void deplacerAliens()
+	{
+		
 	}
 }
