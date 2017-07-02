@@ -201,9 +201,7 @@ public class App {
 		btnQuitterShop.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnQuitterShop.setText("Retour");
 		
-		ajoutArmesDansShop();
-		
-		joueur.setArmeEquipee(doubleCanons);
+		ajoutArmesDansShop();		
 	}
 
 	// Centre la fenetre au milieu de l'écran
@@ -257,6 +255,8 @@ public class App {
 					alien.getLabel().dispose();
 				}
 				listeAliens.clear();
+				joueur.setPoints(0);
+				joueur.setArmeEquipee(null);
 			}
 		});
 		
