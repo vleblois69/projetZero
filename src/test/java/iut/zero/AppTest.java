@@ -126,6 +126,7 @@ public class AppTest
 		raz();
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
 		int ancienPV = joueur.getPv();
+		App.initialisationBarreDeVie();
 		Label lblTir = App.initialiserTirJoueur();
 		while (App.tirEnCours)
 		{
@@ -216,6 +217,7 @@ public class AppTest
 		raz();
 		joueur.setPoints(5);
 		joueur.setPv(1);
+		App.initialisationBarreDeVie();
 		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU);
 		
 		Alien alien1 = new Alien(App.compJeu, App.display);
@@ -286,6 +288,33 @@ public class AppTest
 		Label lblTir = App.initialiserTirJoueur();
 		App.tirJoueur(lblTir);
 		assertEquals(1, App.listeAliens.size());
+	}
+	
+	@Test
+	public void detuireDeuxAliensAvecLeDoubleCanons()
+	{		
+		raz();
+		
+		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
+		
+		Alien alien = new Alien(App.compJeu, App.display);		
+		alien.setPv(1);
+		alien.getLabel().setLocation(App.X_DEBUT_VAISSEAU - 10, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien);
+		
+		Alien alien2 = new Alien(App.compJeu, App.display);		
+		alien2.setPv(1);
+		alien2.getLabel().setLocation(App.X_DEBUT_VAISSEAU + 55, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien2);
+		
+		DoubleCanons doubleCanons = new DoubleCanons();
+		joueur.setArmeEquipee(doubleCanons);
+		Label lblTir = App.initialiserTirJoueur();
+		while (App.tirEnCours)
+		{
+			App.tirJoueur(lblTir);
+		}
+		assertTrue(App.listeAliens.isEmpty());
 	}
 	
 	public void raz()

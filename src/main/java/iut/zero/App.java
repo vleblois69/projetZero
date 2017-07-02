@@ -78,6 +78,8 @@ public class App {
 	static DoubleCanons doubleCanons;
 	static Label lblTirGauche;
 	static Label lblTirDroit;
+	static boolean tirGaucheATouche;
+	static boolean tirDroitATouche;
 
 	public static void main(String[] args) {
 
@@ -357,6 +359,14 @@ public class App {
 						lblScore.setText("Score : " + joueur.getPoints());
 					}
 					listeAliens.remove(alien);
+					if (lblTir.equals(lblTirGauche))
+					{
+						tirGaucheATouche = true;
+					}
+					else if (lblTir.equals(lblTirDroit))
+					{
+						tirDroitATouche = true;
+					}
 				}
 				return true;
 			}
@@ -566,11 +576,11 @@ public class App {
 			lblTirDroit.setLocation(xTirDroit, yDeuxTirs);
 			if (alienACettePosition(xTirGauche, yDeuxTirs, lblTirGauche) || alienACettePosition(xTirDroit, yDeuxTirs, lblTirDroit)
 					|| joueurACettePosition(xTirGauche, yDeuxTirs) || joueurACettePosition(xTirDroit, yDeuxTirs)) {
-				if (alienACettePosition(xTirGauche, yDeuxTirs, lblTirGauche))
+				if (tirGaucheATouche)
 				{
 					alienACettePosition(xTirDroit, yDeuxTirs, lblTirDroit);
 				}
-				else if (alienACettePosition(xTirDroit, yDeuxTirs, lblTirDroit))
+				else if (tirDroitATouche)
 				{
 					alienACettePosition(xTirGauche, yDeuxTirs, lblTirGauche);
 				}
@@ -589,6 +599,8 @@ public class App {
 				} else {
 					lblTirGauche.dispose();
 					lblTirDroit.dispose();
+					tirGaucheATouche = false;
+					tirDroitATouche = false;
 					tirEnCours = false;
 					deuxiemePassage = false;
 					entiteToucheeParJoueur = false;
@@ -663,19 +675,8 @@ public class App {
 
 		joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
 		joueur.getLabel().setVisible(true);
-		joueur.setPv(3);
-		lblsVieJoueur.clear();
-		int xLblViePrecedent = 140;
-		int ecartEntreLbl = 15;
-		for (int i = 0; i < 3; i++)
-		{
-			Label lblVie = new Label(compJeu, SWT.NONE);
-			lblVie.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
-			lblVie.setSize(9, 15);
-			lblVie.setLocation(xLblViePrecedent + ecartEntreLbl, 5);
-			xLblViePrecedent = lblVie.getLocation().x;
-			lblsVieJoueur.add(lblVie);
-		}
+		joueur.setPv(3);		
+		initialisationBarreDeVie();
 		genererAliens(compJeu, display);
 		lblScore.setText("Score : " + joueur.getPoints());
 
@@ -793,5 +794,21 @@ public class App {
 				lblInfosShop.setText("Points insuffisants pour acheter cette arme");
 			}
 		}		
+	}
+	
+	public static void initialisationBarreDeVie()
+	{
+		lblsVieJoueur.clear();
+		int xLblViePrecedent = 140;
+		int ecartEntreLbl = 15;
+		for (int i = 0; i < joueur.getPv(); i++)
+		{
+			Label lblVie = new Label(compJeu, SWT.NONE);
+			lblVie.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+			lblVie.setSize(9, 15);
+			lblVie.setLocation(xLblViePrecedent + ecartEntreLbl, 5);
+			xLblViePrecedent = lblVie.getLocation().x;
+			lblsVieJoueur.add(lblVie);
+		}
 	}
 }
