@@ -68,7 +68,6 @@ public class App {
 	
 
 	// Variables du tir
-	static int yTir, xTir;
 	static boolean tirEnCours = false;
 	static boolean deuxiemePassage = false;
 	static boolean entiteToucheeParJoueur = false;
@@ -77,6 +76,8 @@ public class App {
 	// Variable armes
 	static Laser laser;
 	static DoubleCanons doubleCanons;
+	static Label lblTirGauche;
+	static Label lblTirDroit;
 
 	public static void main(String[] args) {
 
@@ -149,7 +150,6 @@ public class App {
 		btnShop.setText("Boutique");		
 
 		joueur = new Joueur(compJeu, display);
-		joueur.setPoints(20);
 		lblsVieJoueur = new ArrayList<Label>();
 
 		lblScore = new Label(compJeu, SWT.NONE);
@@ -200,6 +200,8 @@ public class App {
 		btnQuitterShop.setText("Retour");
 		
 		ajoutArmesDansShop();
+		
+		joueur.setArmeEquipee(doubleCanons);
 	}
 
 	// Centre la fenetre au milieu de l'écran
@@ -304,8 +306,8 @@ public class App {
 									@Override
 									public void run() {
 										final Label lblTir = initialiserTirJoueur();
-										if (joueur.getArmeEquipee() == null)
-										{
+										if (joueur.getArmeEquipee() == null || joueur.getArmeEquipee() instanceof DoubleCanons)
+										{											
 											Display.getCurrent().timerExec(1, new Runnable() {
 												@Override
 												public void run() {
@@ -314,7 +316,7 @@ public class App {
 														Display.getCurrent().timerExec(1, this);
 													}
 												}
-											});
+											});											
 										}
 										else if (joueur.getArmeEquipee() instanceof Laser)
 										{
@@ -499,18 +501,27 @@ public class App {
 			lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
 			lblTir.setBounds(x + lblVaisseau.getSize().x / 2, y - (lblVaisseau.getSize().y + 1), 5, 30);
 			compJeu.update();
-			xTir = lblTir.getBounds().x;
-			yTir = lblTir.getBounds().y;
 		}
 		else if (joueur.getArmeEquipee() instanceof Laser)
 		{
 			lblTir.setBackground(laser.getCouleur());
 			lblTir.moveAbove(null);
 			lblTir.setBounds(x, 0, 50, compJeu.getSize().y - 150);
-			System.out.println(lblTir.getBounds());
 			compJeu.update();
-			xTir = lblTir.getBounds().x;
-			yTir = lblTir.getBounds().y;
+		}
+		else if (joueur.getArmeEquipee() instanceof DoubleCanons)
+		{
+			//Creation du tir gauche
+			lblTirGauche = new Label(compJeu, SWT.NONE);
+			lblTirGauche.setBackground(doubleCanons.getCouleur());
+			lblTirGauche.setBounds(x - 10, y, 5, 30);
+			
+			//Creation du tir droit
+			lblTirDroit = new Label(compJeu, SWT.NONE);
+			lblTirDroit.setBackground(doubleCanons.getCouleur());
+			lblTirDroit.setBounds(x - 10, y, 5, 30);
+			lblTirDroit.setBounds(x + lblVaisseau.getSize().x + 5, y, 5, 30);			
+			compJeu.update();
 		}
 		
 		return lblTir;
@@ -519,6 +530,8 @@ public class App {
 	public static void tirJoueur(Label lblTir) {
 		if (joueur.getArmeEquipee() == null)
 		{
+			int yTir = lblTir.getLocation().y;
+			int xTir = lblTir.getLocation().x;
 			yTir -= 8;
 			lblTir.setLocation(xTir, yTir);
 			if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
@@ -530,9 +543,52 @@ public class App {
 			if (yTir - 8 < 0 || entiteToucheeParJoueur) {
 				if (!deuxiemePassage && !entiteToucheeParJoueur) {
 					yTir = compJeu.getSize().y + 8;
+					lblTir.setLocation(xTir, yTir);
 					deuxiemePassage = true;
 				} else {
 					lblTir.dispose();
+					tirEnCours = false;
+					deuxiemePassage = false;
+					entiteToucheeParJoueur = false;
+					if (listeAliens.isEmpty() || joueur.getPv() == 0) {
+						finDeLaPartie();
+					}
+				}
+			}
+		}
+		else if (joueur.getArmeEquipee() instanceof DoubleCanons)
+		{
+			int yDeuxTirs = lblTirGauche.getLocation().y;
+			int xTirGauche = lblTirGauche.getLocation().x;
+			int xTirDroit = lblTirDroit.getLocation().x;
+			yDeuxTirs -= 8;
+			lblTirGauche.setLocation(xTirGauche, yDeuxTirs);
+			lblTirDroit.setLocation(xTirDroit, yDeuxTirs);
+			if (alienACettePosition(xTirGauche, yDeuxTirs, lblTirGauche) || alienACettePosition(xTirDroit, yDeuxTirs, lblTirDroit)
+					|| joueurACettePosition(xTirGauche, yDeuxTirs) || joueurACettePosition(xTirDroit, yDeuxTirs)) {
+				if (alienACettePosition(xTirGauche, yDeuxTirs, lblTirGauche))
+				{
+					alienACettePosition(xTirDroit, yDeuxTirs, lblTirDroit);
+				}
+				else if (alienACettePosition(xTirDroit, yDeuxTirs, lblTirDroit))
+				{
+					alienACettePosition(xTirGauche, yDeuxTirs, lblTirGauche);
+				}
+				entiteToucheeParJoueur = true;
+			} else {
+				lblTirGauche.redraw();
+				lblTirDroit.redraw();
+				compJeu.update();
+			}
+			if (yDeuxTirs - 8 < 0 || entiteToucheeParJoueur) {
+				if (!deuxiemePassage && !entiteToucheeParJoueur) {
+					yDeuxTirs = compJeu.getSize().y + 8;
+					lblTirGauche.setLocation(xTirGauche, yDeuxTirs);
+					lblTirDroit.setLocation(xTirDroit, yDeuxTirs);
+					deuxiemePassage = true;
+				} else {
+					lblTirGauche.dispose();
+					lblTirDroit.dispose();
 					tirEnCours = false;
 					deuxiemePassage = false;
 					entiteToucheeParJoueur = false;
@@ -583,7 +639,6 @@ public class App {
 			lblTir.setLocation(xTir, yTir);
 			if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
 				entiteToucheeParAlien = true;
-				System.out.println("alien touché !");
 			} else {
 				lblTir.redraw();
 				compJeu.update();
@@ -609,6 +664,7 @@ public class App {
 		joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
 		joueur.getLabel().setVisible(true);
 		joueur.setPv(3);
+		lblsVieJoueur.clear();
 		int xLblViePrecedent = 140;
 		int ecartEntreLbl = 15;
 		for (int i = 0; i < 3; i++)
