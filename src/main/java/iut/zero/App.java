@@ -56,6 +56,7 @@ public class App {
 	static Label lblShop;
 	static Label lblInfosShop;
 	static Label lblNbPoints;
+	static Label lblVie;
 	static Button btnStart;
 	static Button btnRetournerAuMenu;
 	static Button btnNiveauSuivant;
@@ -63,6 +64,7 @@ public class App {
 	static Button btnQuitterShop;
 	static Button btnLaser;
 	static Button btnDoubleCanons;
+	static List<Label> lblsVieJoueur;
 	
 
 	// Variables du tir
@@ -148,12 +150,20 @@ public class App {
 
 		joueur = new Joueur(compJeu, display);
 		joueur.setPoints(20);
+		lblsVieJoueur = new ArrayList<Label>();
 
 		lblScore = new Label(compJeu, SWT.NONE);
 		lblScore.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
 		lblScore.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblScore.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
-		lblScore.setBounds(5, 0, 104, 21);
+		lblScore.setBounds(5, 0, 100, 21);
+		
+		lblVie = new Label(compJeu, SWT.NONE);
+		lblVie.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
+		lblVie.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lblVie.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
+		lblVie.setBounds(115, 0, 30, 21);
+		lblVie.setText("PV : ");
 		
 		compShop = new Composite(shell, SWT.BORDER);
 		compShop.setLayout(null);
@@ -390,6 +400,11 @@ public class App {
 			lblVaisseau.setVisible(false);
 			lblVaisseau.setVisible(true);
 			joueur.retirerPV(1);
+			if (joueur.getPv() >= 0)
+			{
+				lblsVieJoueur.get(joueur.getPv()).dispose();
+				lblsVieJoueur.remove(joueur.getPv());
+			}			
 			return true;
 		}
 		return false;
@@ -594,6 +609,17 @@ public class App {
 		joueur.getLabel().setLocation(X_DEBUT_VAISSEAU, Y_DEBUT_VAISSEAU);
 		joueur.getLabel().setVisible(true);
 		joueur.setPv(3);
+		int xLblViePrecedent = 140;
+		int ecartEntreLbl = 15;
+		for (int i = 0; i < 3; i++)
+		{
+			Label lblVie = new Label(compJeu, SWT.NONE);
+			lblVie.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+			lblVie.setSize(9, 15);
+			lblVie.setLocation(xLblViePrecedent + ecartEntreLbl, 5);
+			xLblViePrecedent = lblVie.getLocation().x;
+			lblsVieJoueur.add(lblVie);
+		}
 		genererAliens(compJeu, display);
 		lblScore.setText("Score : " + joueur.getPoints());
 
