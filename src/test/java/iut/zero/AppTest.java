@@ -238,12 +238,23 @@ public class AppTest
 		assertEquals(15 - doubleCanons.getPrix(), joueur.getPoints());
 	}
 	
+	@Test
+	public void acheterUneArmeLEquipe()
+	{		
+		raz();
+		joueur.setPoints(15);
+		DoubleCanons doubleCanons = new DoubleCanons();
+		App.acheterArme(doubleCanons);
+		assertEquals(doubleCanons, joueur.getArmeEquipee());
+	}
+	
 	public void raz()
 	{
 		App.listeAliens.clear();
 		joueur.getLabel().setLocation(0,0);
 		joueur.setPv(3);
 		joueur.setPoints(0);
+		joueur.setArmeEquipee(null);
 	}
     
 }
