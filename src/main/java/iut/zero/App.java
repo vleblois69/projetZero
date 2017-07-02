@@ -55,6 +55,8 @@ public class App {
 	static Label lblTitre;
 	static Label lblScore;
 	static Label lblShop;
+	static Label lblInfosShop;
+	static Label lblNbPoints;
 	static Button btnStart;
 	static Button btnRetournerAuMenu;
 	static Button btnNiveauSuivant;
@@ -70,6 +72,10 @@ public class App {
 	static boolean deuxiemePassage = false;
 	static boolean entiteToucheeParJoueur = false;
 	static boolean entiteToucheeParAlien = false;
+	
+	// Variable armes
+	static Laser laser;
+	static DoubleCanons doubleCanons;
 
 	public static void main(String[] args) {
 
@@ -163,11 +169,23 @@ public class App {
 		lblShop.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblShop.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
 		lblShop.setFont(SWTResourceManager.getFont("Segoe UI", 24, SWT.NORMAL));
-		lblShop.setBounds(280, 38, 307, 57);
+		lblShop.setBounds(280, 8, 307, 57);
 		lblShop.setText("Boutique");
 		
+		lblInfosShop = new Label(compShop, SWT.CENTER);
+		lblInfosShop.setForeground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
+		lblInfosShop.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
+		lblInfosShop.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
+		lblInfosShop.setBounds(190, 320, 387, 45);	
+		
+		lblNbPoints = new Label(compShop, SWT.CENTER);
+		lblNbPoints.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
+		lblNbPoints.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lblNbPoints.setFont(SWTResourceManager.getFont("Segoe UI", 14, SWT.NORMAL));
+		lblNbPoints.setBounds(215, 80, 300, 50);
+		
 		btnQuitterShop = new Button(compShop, SWT.NONE);
-		btnQuitterShop.setBounds(280, 380, 178, 42);
+		btnQuitterShop.setBounds(280, 410, 178, 42);
 		btnQuitterShop.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnQuitterShop.setText("Retour");
 		
@@ -234,6 +252,7 @@ public class App {
 				compMenu.setVisible(false);
 				compJeu.setVisible(false);
 				compShop.setVisible(true);
+				lblNbPoints.setText("Points disponibles : " + joueur.getPoints());
 			}
 		});
 		
@@ -242,6 +261,20 @@ public class App {
 			public void widgetSelected(SelectionEvent arg0) {
 				compShop.setVisible(false);
 				compJeu.setVisible(true);
+			}
+		});
+		
+		btnLaser.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				acheterArme(laser);
+			}
+		});
+		
+		btnDoubleCanons.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				acheterArme(doubleCanons);
 			}
 		});
 
@@ -557,42 +590,63 @@ public class App {
 	
 	public static void ajoutArmesDansShop()
 	{
-		Laser laser = new Laser();		
+		laser = new Laser();		
 		Label lblLaser = new Label(compShop, SWT.NONE);
 		lblLaser.setBackground(laser.couleur);
 		lblLaser.setSize(50, 50);
-		lblLaser.setLocation(80, 128);
+		lblLaser.setLocation(80, 138);
 				
 		Label lblDescLaser = new Label(compShop, SWT.NONE);
 		lblDescLaser.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblDescLaser.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
 		lblDescLaser.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		lblDescLaser.setSize(420, 50);
-		lblDescLaser.setLocation(150, 128);
+		lblDescLaser.setLocation(150, 138);
 		lblDescLaser.setText(laser.description);
 		
 		btnLaser = new Button(compShop, SWT.NONE);
-		btnLaser.setBounds(580, 128, 50, 50);
+		btnLaser.setBounds(580, 138, 50, 50);
 		btnLaser.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnLaser.setText(String.valueOf(laser.prix));
 		
-		DoubleCanons doubleCanons = new DoubleCanons();		
+		doubleCanons = new DoubleCanons();		
 		Label lblDoubleCanons = new Label(compShop, SWT.NONE);
 		lblDoubleCanons.setBackground(doubleCanons.couleur);
 		lblDoubleCanons.setSize(50, 50);
-		lblDoubleCanons.setLocation(80, 208);
+		lblDoubleCanons.setLocation(80, 218);
 		
 		Label lblDescDoubleCanons = new Label(compShop, SWT.NONE);
 		lblDescDoubleCanons.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblDescDoubleCanons.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
 		lblDescDoubleCanons.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		lblDescDoubleCanons.setSize(350, 50);
-		lblDescDoubleCanons.setLocation(150, 208);
+		lblDescDoubleCanons.setLocation(150, 218);
 		lblDescDoubleCanons.setText(doubleCanons.description);
 		
 		btnDoubleCanons = new Button(compShop, SWT.NONE);
-		btnDoubleCanons.setBounds(580, 208, 50, 50);
+		btnDoubleCanons.setBounds(580, 218, 50, 50);
 		btnDoubleCanons.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnDoubleCanons.setText(String.valueOf(doubleCanons.prix));
+	}
+	
+	public static void acheterArme(Arme arme)
+	{
+		if (joueur.getArmeEquipee() != null && joueur.getArmeEquipee().equals(arme))
+		{
+			lblInfosShop.setText("Vous disposez déjà de cette arme");
+		}
+		else
+		{
+			if (joueur.getPoints() >= arme.getPrix())
+			{
+				joueur.setPoints(joueur.getPoints() - arme.getPrix());
+				joueur.setArmeEquipee(arme);
+				lblInfosShop.setText("");
+			}
+			else
+			{
+				lblInfosShop.setText("Points insuffisants pour acheter cette arme");
+			}
+		}		
 	}
 }
