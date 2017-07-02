@@ -14,7 +14,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.events.KeyAdapter;
@@ -31,8 +30,8 @@ public class App {
 	 * @param args
 	 */
 
-	final static int NB_ALIENS_PAR_LIGNE = 2;
-	final static int NB_LIGNES = 1;
+	final static int NB_ALIENS_PAR_LIGNE = 8;
+	final static int NB_LIGNES = 4;
 	final static int Y_DEBUT_VAISSEAU = 422;
 	final static int X_DEBUT_VAISSEAU = 380;
 	final static int ECART_ENTRE_ALIENS = 10;
@@ -148,6 +147,7 @@ public class App {
 		btnShop.setText("Boutique");		
 
 		joueur = new Joueur(compJeu, display);
+		joueur.setPoints(20);
 
 		lblScore = new Label(compJeu, SWT.NONE);
 		lblScore.setBackground(SWTResourceManager.getColor(SWT.TRANSPARENT));
@@ -251,7 +251,7 @@ public class App {
 			public void widgetSelected(SelectionEvent arg0) {
 				compMenu.setVisible(false);
 				compJeu.setVisible(false);
-				compShop.setVisible(true);
+				compShop.setVisible(true);				
 				lblNbPoints.setText("Points disponibles : " + joueur.getPoints());
 			}
 		});
@@ -288,21 +288,35 @@ public class App {
 					} else if (keyPressed.keyCode == SWT.ARROW_LEFT) {
 						deplacerVaisseau(-15);
 					} else {
-						if (keyPressed.keyCode == SWT.SPACE) {
+						if (keyPressed.keyCode == SWT.SPACE) {						
 							if (!tirEnCours) {
 								Display.getCurrent().asyncExec(new Runnable() {
 									@Override
 									public void run() {
 										final Label lblTir = initialiserTirJoueur();
-										Display.getCurrent().timerExec(1, new Runnable() {
-											@Override
-											public void run() {
-												tirJoueur(lblTir);
-												if (tirEnCours) {
-													Display.getCurrent().timerExec(1, this);
+										if (joueur.getArmeEquipee() == null)
+										{
+											Display.getCurrent().timerExec(1, new Runnable() {
+												@Override
+												public void run() {
+													tirJoueur(lblTir);
+													if (tirEnCours) {
+														Display.getCurrent().timerExec(1, this);
+													}
 												}
-											}
-										});
+											});
+										}
+										else if (joueur.getArmeEquipee() instanceof Laser)
+										{
+											tirJoueur(lblTir);
+											Display.getCurrent().timerExec(200, new Runnable() {
+												@Override
+												public void run() {													
+													lblTir.dispose();
+													tirEnCours = false;
+												}
+											});
+										}										
 									}
 								});
 
@@ -321,17 +335,11 @@ public class App {
 			int yAlien = lblAlien.getLocation().y;
 			int widthAlien = lblAlien.getSize().x;
 			int heightAlien = lblAlien.getSize().y;
-			if ((x >= xAlien && x <= xAlien + widthAlien) && (y <= yAlien && y >= yAlien - heightAlien)) {
+			if ((x >= xAlien && x <= xAlien + widthAlien) && (y <= yAlien && y >= yAlien - heightAlien))
+			{
 				alien.retirerPV(1);
 				if (alien.getPv() <= 0) {
-					if (!lblTir.getBackground().equals(SWTResourceManager.getColor(SWT.COLOR_WHITE))) // Si
-																										// ce
-																										// n'est
-																										// pas
-																										// un
-																										// tir
-																										// d'un
-																										// alien
+					if (!lblTir.getBackground().equals(SWTResourceManager.getColor(SWT.COLOR_WHITE))) // Si ce n'est pas un tir d'un alien
 					{
 						joueur.setPoints(joueur.getPoints() + 1);
 						lblScore.setText("Score : " + joueur.getPoints());
@@ -342,6 +350,34 @@ public class App {
 			}
 		}
 		return false;
+	}
+	
+	public static void aliensDansLeLaser(int x, int y, Label lblTir) {
+		List<Alien> aliensDansLaColonne = new ArrayList<>();
+		for (Alien alien : listeAliens) 
+		{
+			Label lblAlien = alien.getLabel();
+			int xAlien = lblAlien.getLocation().x;
+			int yAlien = lblAlien.getLocation().y;
+			int widthAlien = lblAlien.getSize().x;
+			if ((x >= xAlien && x <= xAlien + widthAlien) && (y <= yAlien))				
+			{
+				alien.retirerPV(1);
+				if (alien.getPv() <= 0) 
+				{
+					if (!lblTir.getBackground().equals(SWTResourceManager.getColor(SWT.COLOR_WHITE))) // Si ce n'est pas un tir d'un alien
+					{
+						joueur.setPoints(joueur.getPoints() + 1);
+						lblScore.setText("Score : " + joueur.getPoints());
+					}
+					aliensDansLaColonne.add(alien);					
+				}
+			}
+		}
+		for (Alien alien : aliensDansLaColonne)
+		{
+			listeAliens.remove(alien);
+		}
 	}
 
 	public static boolean joueurACettePosition(int x, int y) {
@@ -425,6 +461,7 @@ public class App {
 		else
 		{
 			joueur.setPoints(0); //Le joueur a perdu, on remet son score à 0
+			joueur.setArmeEquipee(null);			
 		}
 		jeuEnCours = false;
 		btnRetournerAuMenu.setVisible(true);
@@ -441,35 +478,60 @@ public class App {
 		int y = lblVaisseau.getBounds().y;
 		Label lblTir = new Label(compJeu, SWT.NONE);
 		tirEnCours = true;
-		lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
-		lblTir.setBounds(x + lblVaisseau.getSize().x / 2, y - (lblVaisseau.getSize().y + 1), 5, 30);
-		compJeu.update();
-		xTir = lblTir.getBounds().x;
-		yTir = lblTir.getBounds().y;
+		
+		if (joueur.getArmeEquipee() == null)
+		{
+			lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+			lblTir.setBounds(x + lblVaisseau.getSize().x / 2, y - (lblVaisseau.getSize().y + 1), 5, 30);
+			compJeu.update();
+			xTir = lblTir.getBounds().x;
+			yTir = lblTir.getBounds().y;
+		}
+		else if (joueur.getArmeEquipee() instanceof Laser)
+		{
+			lblTir.setBackground(laser.getCouleur());
+			lblTir.moveAbove(null);
+			lblTir.setBounds(x, 0, 50, compJeu.getSize().y - 150);
+			System.out.println(lblTir.getBounds());
+			compJeu.update();
+			xTir = lblTir.getBounds().x;
+			yTir = lblTir.getBounds().y;
+		}
+		
 		return lblTir;
 	}
 
 	public static void tirJoueur(Label lblTir) {
-		yTir -= 8;
-		lblTir.setLocation(xTir, yTir);
-		if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
-			entiteToucheeParJoueur = true;
-		} else {
-			lblTir.redraw();
-			compJeu.update();
-		}
-		if (yTir - 8 < 0 || entiteToucheeParJoueur) {
-			if (!deuxiemePassage && !entiteToucheeParJoueur) {
-				yTir = compJeu.getSize().y + 8;
-				deuxiemePassage = true;
+		if (joueur.getArmeEquipee() == null)
+		{
+			yTir -= 8;
+			lblTir.setLocation(xTir, yTir);
+			if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
+				entiteToucheeParJoueur = true;
 			} else {
-				lblTir.dispose();
-				tirEnCours = false;
-				deuxiemePassage = false;
-				entiteToucheeParJoueur = false;
-				if (listeAliens.isEmpty() || joueur.getPv() == 0) {
-					finDeLaPartie();
+				lblTir.redraw();
+				compJeu.update();
+			}
+			if (yTir - 8 < 0 || entiteToucheeParJoueur) {
+				if (!deuxiemePassage && !entiteToucheeParJoueur) {
+					yTir = compJeu.getSize().y + 8;
+					deuxiemePassage = true;
+				} else {
+					lblTir.dispose();
+					tirEnCours = false;
+					deuxiemePassage = false;
+					entiteToucheeParJoueur = false;
+					if (listeAliens.isEmpty() || joueur.getPv() == 0) {
+						finDeLaPartie();
+					}
 				}
+			}
+		}
+		else if (joueur.getArmeEquipee() instanceof Laser)
+		{
+			aliensDansLeLaser(lblTir.getLocation().x, lblTir.getLocation().y, lblTir);			
+			if (listeAliens.isEmpty() || joueur.getPv() == 0) {
+				finDeLaPartie();
 			}
 		}
 	}
@@ -490,7 +552,6 @@ public class App {
 			int x = lblAlien.getBounds().x;
 			int y = lblAlien.getBounds().y;
 			lblTir = new Label(compJeu, SWT.NONE);
-			// tirEnCours = true;
 			lblTir.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			lblTir.setBounds(x + lblAlien.getSize().x / 2, y + 1, 5, 30);
 			compJeu.update();
@@ -507,6 +568,7 @@ public class App {
 			lblTir.setLocation(xTir, yTir);
 			if (alienACettePosition(xTir, yTir, lblTir) || joueurACettePosition(xTir, yTir)) {
 				entiteToucheeParAlien = true;
+				System.out.println("alien touché !");
 			} else {
 				lblTir.redraw();
 				compJeu.update();
@@ -642,6 +704,7 @@ public class App {
 				joueur.setPoints(joueur.getPoints() - arme.getPrix());
 				joueur.setArmeEquipee(arme);
 				lblInfosShop.setText("");
+				lblNbPoints.setText("Points disponibles : " + joueur.getPoints());
 			}
 			else
 			{
