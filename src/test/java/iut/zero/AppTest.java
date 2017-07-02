@@ -229,6 +229,15 @@ public class AppTest
 		assertEquals(0, joueur.getPoints());
 	}
 	
+	@Test
+	public void acheterUneArmeDiminueLeNbDePoints()
+	{		
+		joueur.setPoints(15);
+		DoubleCanons doubleCanons = new DoubleCanons();
+		App.acheterArme(doubleCanons);
+		assertEquals(15 - doubleCanons.getPrix(), joueur.getPoints());
+	}
+	
 	public void raz()
 	{
 		App.listeAliens.clear();
