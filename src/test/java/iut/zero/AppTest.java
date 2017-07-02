@@ -260,6 +260,34 @@ public class AppTest
 		assertEquals(ancienPoints, joueur.getPoints());
 	}
 	
+	@Test
+	public void detruireTouteLaColonneSiTirLaser()
+	{		
+		raz();
+		joueur.getLabel().setLocation(App.X_DEBUT_VAISSEAU,App.Y_DEBUT_VAISSEAU);
+		
+		Alien alien = new Alien(App.compJeu, App.display);		
+		alien.setPv(1);
+		alien.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 100);
+		App.listeAliens.add(alien);
+		
+		Alien alien2 = new Alien(App.compJeu, App.display);		
+		alien2.setPv(1);
+		alien2.getLabel().setLocation(App.X_DEBUT_VAISSEAU, App.Y_DEBUT_VAISSEAU - 160);
+		App.listeAliens.add(alien2);
+		
+		Alien alien3 = new Alien(App.compJeu, App.display);		
+		alien3.setPv(1);
+		alien3.getLabel().setLocation(App.X_DEBUT_VAISSEAU + 100, App.Y_DEBUT_VAISSEAU - 160);
+		App.listeAliens.add(alien3);
+		
+		Laser laser = new Laser();
+		joueur.setArmeEquipee(laser);
+		Label lblTir = App.initialiserTirJoueur();
+		App.tirJoueur(lblTir);
+		assertEquals(1, App.listeAliens.size());
+	}
+	
 	public void raz()
 	{
 		App.listeAliens.clear();
