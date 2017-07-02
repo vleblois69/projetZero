@@ -30,8 +30,8 @@ public class App {
 	 * @param args
 	 */
 
-	final static int NB_ALIENS_PAR_LIGNE = 8;
-	final static int NB_LIGNES = 4;
+	static int NB_ALIENS_PAR_LIGNE = 3;
+	static int NB_LIGNES = 1;
 	final static int Y_DEBUT_VAISSEAU = 422;
 	final static int X_DEBUT_VAISSEAU = 380;
 	final static int ECART_ENTRE_ALIENS = 10;
@@ -201,7 +201,7 @@ public class App {
 		btnQuitterShop.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.NORMAL));
 		btnQuitterShop.setText("Retour");
 		
-		ajoutArmesDansShop();		
+		ajoutArmesDansShop();	
 	}
 
 	// Centre la fenetre au milieu de l'écran
@@ -242,6 +242,14 @@ public class App {
 		btnNiveauSuivant.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				if (NB_ALIENS_PAR_LIGNE < 10)
+				{
+					NB_ALIENS_PAR_LIGNE += 1;
+				}				
+				if (NB_LIGNES <= 5)
+				{
+					NB_LIGNES += 1;
+				}				
 				lancementPartie();
 			}
 		});
@@ -516,7 +524,7 @@ public class App {
 		{
 			lblTir.setBackground(laser.getCouleur());
 			lblTir.moveAbove(null);
-			lblTir.setBounds(x, 0, 50, compJeu.getSize().y - 150);
+			lblTir.setBounds(x, 0, 50, compJeu.getSize().y - (compJeu.getSize().y - y + 10));
 			compJeu.update();
 		}
 		else if (joueur.getArmeEquipee() instanceof DoubleCanons)
