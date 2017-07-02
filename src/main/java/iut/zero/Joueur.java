@@ -29,6 +29,14 @@ public class Joueur extends Entite
 
 	public void setPoints(int points) {
 		this.points = points;
-	}	
+	}
 
+	public Arme getArmeEquipee() {
+		return armeEquipee;
+	}
+
+	public void setArmeEquipee(Arme armeEquipee) {
+		this.armeEquipee = armeEquipee;
+	}	
+	
 }
