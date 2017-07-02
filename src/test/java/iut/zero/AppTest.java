@@ -248,6 +248,18 @@ public class AppTest
 		assertEquals(doubleCanons, joueur.getArmeEquipee());
 	}
 	
+	@Test
+	public void pasRetirerPointsSiAchatArmeDejaEquipee()
+	{		
+		raz();
+		joueur.setPoints(40);
+		DoubleCanons doubleCanons = new DoubleCanons();
+		App.acheterArme(doubleCanons);
+		int ancienPoints = joueur.getPoints();
+		App.acheterArme(doubleCanons);
+		assertEquals(ancienPoints, joueur.getPoints());
+	}
+	
 	public void raz()
 	{
 		App.listeAliens.clear();
